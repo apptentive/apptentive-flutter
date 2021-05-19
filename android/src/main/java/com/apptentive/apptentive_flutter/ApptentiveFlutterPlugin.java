@@ -24,8 +24,8 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-    if (call.method.equals("getPlatformVersion")) {
-      result.success("Android " + android.os.Build.VERSION.RELEASE);
+    if (call.method.equals("register")) {
+      result.success(true);
     } else {
       result.notImplemented();
     }

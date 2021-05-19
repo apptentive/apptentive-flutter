@@ -28,3 +28,7 @@ android {
         minSdkVersion 16
     }
 }
+
+dependencies {
+    implementation 'com.apptentive:apptentive-android:5.6.2'
+}
