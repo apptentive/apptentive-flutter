@@ -18,7 +18,7 @@ class ApptentiveFlutter {
     return {
       "key": configuration.apptentiveKey,
       "signature": configuration.apptentiveSignature,
-      "log_level": configuration.logLevel,
+      "log_level": configuration.logLevel.toString(),
       "should_encrypt_storage": configuration.shouldEncryptStorage,
       "should_sanitize_log_messages": configuration.shouldSanitizeLogMessages,
       "troubleshooting_mode_enabled": configuration.troubleshootingModeEnabled,
@@ -30,9 +30,9 @@ class ApptentiveFlutter {
   static Map _packTermsAndConditions(ApptentiveTermsAndConditions? conditions) {
     if (conditions != null) {
       return {
-        "bodyText": conditions.bodyText,
-        "linkText": conditions.linkText,
-        "linkURL": conditions.linkURL,
+        "body_text": conditions.bodyText,
+        "link_text": conditions.linkText,
+        "link_url": conditions.linkURL,
       };
     }
 
