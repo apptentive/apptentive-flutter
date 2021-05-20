@@ -79,6 +79,22 @@ class ApptentiveFlutter {
     return showed;
   }
 
+  static Future<bool> addCustomPersonData({required String key, required dynamic value}) async {
+    final bool successful = await _channel.invokeMethod('addCustomPersonData', {
+      "key" : key,
+      "value" : value,
+    });
+    return successful;
+  }
+
+  static Future<bool> addCustomDeviceData({required String key, required dynamic value}) async {
+    final bool successful = await _channel.invokeMethod('addCustomDeviceData', {
+      "key" : key,
+      "value" : value,
+    });
+    return successful;
+  }
+
   static Map _packConfiguration(ApptentiveConfiguration configuration) {
     return {
       "key": configuration.apptentiveKey,

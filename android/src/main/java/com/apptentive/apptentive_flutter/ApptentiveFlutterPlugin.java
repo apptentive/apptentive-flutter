@@ -21,6 +21,7 @@ import static com.apptentive.apptentive_flutter.PluginUtils.unpackConfiguration;
 /** ApptentiveFlutterPlugin */
 public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler {
   private static final String ERROR_CODE_NO_APPLICATION = "100";
+  private static final String ERROR_CODE_ARGUMENT_ERROR = "200";
 
   /// The MethodChannel that will the communication between Flutter and native Android
   ///
@@ -56,6 +57,10 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
       setPersonName(call, result);
     } else if (call.method.equals("setPersonEmail")) {
       setPersonEmail(call, result);
+    } else if (call.method.equals("addCustomPersonData")) {
+      addCustomPersonData(call, result);
+    } else if (call.method.equals("addCustomDeviceData")) {
+      addCustomDeviceData(call, result);
     } else {
       result.notImplemented();
     }
@@ -140,5 +145,46 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
     Apptentive.setPersonEmail(email);
     result.success(true);
   }
+
+  private void addCustomPersonData(@NonNull MethodCall call, @NonNull final Result result) {
+    final String key = call.argument("key");
+    final Object value = call.argument("value");
+    if (value instanceof String || value == null) {
+      Apptentive.addCustomPersonData(key, (String) value);
+    } else if (value instanceof Boolean) {
+      Apptentive.addCustomPersonData(key, (Boolean) value);
+    } else if (value instanceof Number) {
+      Apptentive.addCustomPersonData(key, (Number) value);
+    } else {
+      result.error(
+        ERROR_CODE_ARGUMENT_ERROR,
+        "Unable to add custom person data for key '" + key + "': unexpected type " + value.getClass(),
+        null
+      );
+      return;
+    }
+    result.success(true);
+  }
+
+  private void addCustomDeviceData(@NonNull MethodCall call, @NonNull final Result result) {
+    final String key = call.argument("key");
+    final Object value = call.argument("value");
+    if (value instanceof String || value == null) {
+      Apptentive.addCustomDeviceData(key, (String) value);
+    } else if (value instanceof Boolean) {
+      Apptentive.addCustomDeviceData(key, (Boolean) value);
+    } else if (value instanceof Number) {
+      Apptentive.addCustomDeviceData(key, (Number) value);
+    } else {
+      result.error(
+              ERROR_CODE_ARGUMENT_ERROR,
+              "Unable to add custom device data for key '" + key + "': unexpected type " + value.getClass(),
+              null
+      );
+      return;
+    }
+    result.success(true);
+  }
+
   //endregion
 }
