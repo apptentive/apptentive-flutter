@@ -69,7 +69,7 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
     }
 
     @SuppressWarnings("unchecked")
-    ApptentiveConfiguration configuration = unpackConfiguration((Map<String, Object>) call.arguments);
+    ApptentiveConfiguration configuration = unpackConfiguration((Map<String, Object>) call.argument("configuration"));
     Apptentive.register(application, configuration);
     result.success(true);
   }

@@ -39,7 +39,9 @@ class ApptentiveFlutter {
       const MethodChannel('apptentive_flutter');
 
   static Future<bool> register(ApptentiveConfiguration configuration) async {
-    final bool registered = await _channel.invokeMethod('register', _packConfiguration(configuration));
+    final bool registered = await _channel.invokeMethod('register', {
+      "configuration" : _packConfiguration(configuration)
+    });
     return registered;
   }
 
