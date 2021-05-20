@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io' show Platform;
@@ -15,8 +16,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-
   @override
   void initState() {
     super.initState();
@@ -85,10 +84,51 @@ class _MyAppState extends State<MyApp> {
                 },
                 child: Text('Show Message Center'),
               ),
+              person(context)
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget person(BuildContext context) {
+    return Column(
+      children: [
+        editText(
+          hint: "Person name",
+          onSubmit: (name) async {
+            ApptentiveFlutter.setPersonName(name: name);
+          }
+        ),
+        editText(
+            hint: "Person email",
+            onSubmit: (email) async {
+              ApptentiveFlutter.setPersonEmail(email: email);
+            }
+        ),
+      ],
+    );
+  }
+
+  Widget editText({required String hint, required AsyncValueSetter<String> onSubmit}) {
+    var controller = TextEditingController();
+
+    return Row(
+      children: [
+        Flexible(
+          child: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: hint
+            ),
+          ),
+        ),
+        TextButton(onPressed: () {
+          onSubmit(controller.text);
+        }, child: Text("Update"))
+      ],
     );
   }
 }
