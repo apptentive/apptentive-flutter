@@ -24,7 +24,6 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-
     final String apptentiveKey;
     final String apptentiveSignature;
     if (Platform.isAndroid) {
@@ -39,9 +38,9 @@ class _MyAppState extends State<MyApp> {
     }
 
     final ApptentiveConfiguration configuration = ApptentiveConfiguration(
-      apptentiveKey: apptentiveKey,
-      apptentiveSignature: apptentiveSignature,
-      logLevel: LogLevel.verbose
+        apptentiveKey: apptentiveKey,
+        apptentiveSignature: apptentiveSignature,
+        logLevel: LogLevel.verbose
     );
     bool successful = await ApptentiveFlutter.register(configuration);
 
@@ -58,17 +57,27 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Column(
-          children: [
-            TextButton(
-              onPressed: () { ApptentiveFlutter.engage(eventName: "love_dialog"); },
-              child: Text('Love Dialog'),
-            ),
-            TextButton(
-              onPressed: () { ApptentiveFlutter.showMessageCenter(); },
-              child: Text('Show Message Center'),
-            ),
-          ],
+        body: Center(
+          child: Column(
+            children: [
+              TextButton(
+                onPressed: () {
+                  ApptentiveFlutter.engage(eventName: "love_dialog").then((value) {
+                    if (!value) {
+                      Fluttertoast.showToast(msg: "Not engaged");
+                    }
+                  });
+                },
+                child: Text('Love Dialog'),
+              ),
+              TextButton(
+                onPressed: () {
+                  ApptentiveFlutter.showMessageCenter();
+                },
+                child: Text('Show Message Center'),
+              ),
+            ],
+          ),
         ),
       ),
     );
