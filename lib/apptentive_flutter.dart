@@ -53,6 +53,13 @@ class ApptentiveFlutter {
     return engaged;
   }
 
+  static Future<bool> canShowInteraction({required String eventName}) async {
+    final bool engaged = await _channel.invokeMethod('canShowInteraction', {
+      "event_name" : eventName
+    });
+    return engaged;
+  }
+
   static Future<bool> showMessageCenter({Map<String, dynamic>? customData}) async {
     final bool showed = await _channel.invokeMethod('showMessageCenter', customData);
     return showed;

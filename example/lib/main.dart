@@ -73,6 +73,14 @@ class _MyAppState extends State<MyApp> {
               ),
               TextButton(
                 onPressed: () {
+                  ApptentiveFlutter.canShowInteraction(eventName: "love_dialog").then((value) {
+                    Fluttertoast.showToast(msg: value ? "Yes" : "No");
+                  });
+                },
+                child: Text('Can Show Love Dialog'),
+              ),
+              TextButton(
+                onPressed: () {
                   ApptentiveFlutter.showMessageCenter();
                 },
                 child: Text('Show Message Center'),

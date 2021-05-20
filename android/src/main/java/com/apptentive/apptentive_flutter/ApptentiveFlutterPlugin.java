@@ -50,6 +50,8 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
       showMessageCenter(call, result);
     } else if (call.method.equals("engage")) {
       engage(call, result);
+    } else if (call.method.equals("canShowInteraction")) {
+      canShowInteraction(call, result);
     } else {
       result.notImplemented();
     }
@@ -89,6 +91,21 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
         result.success(engaged);
       }
     }, customData);
+  }
+
+  private void canShowInteraction(@NonNull MethodCall call, @NonNull final Result result) {
+    if (application == null) {
+      result.error(ERROR_CODE_NO_APPLICATION, "Unable to check in interaction can be shown", null); // TODO: provide a better error details
+      return;
+    }
+
+    final String event = call.argument("event_name");
+    Apptentive.queryCanShowInteraction(event, new Apptentive.BooleanCallback() {
+      @Override
+      public void onFinish(boolean showed) {
+        result.success(showed);
+      }
+    });
   }
 
   private void showMessageCenter(@NonNull MethodCall call, @NonNull final Result result) {
