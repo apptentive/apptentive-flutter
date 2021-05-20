@@ -93,21 +93,24 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget person(BuildContext context) {
-    return Column(
-      children: [
-        editText(
-          hint: "Person name",
-          onSubmit: (name) async {
-            ApptentiveFlutter.setPersonName(name: name);
-          }
-        ),
-        editText(
-            hint: "Person email",
-            onSubmit: (email) async {
-              ApptentiveFlutter.setPersonEmail(email: email);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+      child: Column(
+        children: [
+          editText(
+            hint: "Person name",
+            onSubmit: (name) async {
+              ApptentiveFlutter.setPersonName(name: name);
             }
-        ),
-      ],
+          ),
+          editText(
+              hint: "Person email",
+              onSubmit: (email) async {
+                ApptentiveFlutter.setPersonEmail(email: email);
+              }
+          ),
+        ],
+      ),
     );
   }
 
