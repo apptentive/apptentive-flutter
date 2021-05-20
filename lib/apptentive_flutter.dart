@@ -43,7 +43,7 @@ class ApptentiveFlutter {
     return registered;
   }
 
-  static Future<bool> showMessageCenter({customData:Map}) async {
+  static Future<bool> showMessageCenter({Map<String, dynamic>? customData}) async {
     final bool showed = await _channel.invokeMethod('showMessageCenter', customData);
     return showed;
   }
