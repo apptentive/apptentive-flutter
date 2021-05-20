@@ -46,6 +46,8 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
     if (call.method.equals("register")) {
       register(call, result);
+    } else if (call.method.equals("showMessageCenter")) {
+      showMessageCenter(call, result);
     } else {
       result.notImplemented();
     }
@@ -68,6 +70,23 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
     ApptentiveConfiguration configuration = unpackConfiguration((Map<String, Object>) call.arguments);
     Apptentive.register(application, configuration);
     result.success(true);
+  }
+
+  private void showMessageCenter(@NonNull MethodCall call, @NonNull final Result result) {
+    if (application == null) {
+      result.error(ERROR_CODE_NO_APPLICATION, "Unable to show message center", null); // TODO: provide a better error details
+      return;
+    }
+
+    @SuppressWarnings("unchecked")
+    final Map<String, Object> customData = (Map<String, Object>) call.arguments;
+
+    Apptentive.showMessageCenter(application, new Apptentive.BooleanCallback() {
+        @Override
+        public void onFinish(boolean showed) {
+            result.success(showed);
+        }
+    }, customData);
   }
 
   //endregion

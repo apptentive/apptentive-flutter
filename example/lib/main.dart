@@ -58,8 +58,9 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+        body: TextButton(
+          onPressed: () { ApptentiveFlutter.showMessageCenter(); },
+          child: Text('Show Message Center'),
         ),
       ),
     );

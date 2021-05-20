@@ -43,6 +43,11 @@ class ApptentiveFlutter {
     return registered;
   }
 
+  static Future<bool> showMessageCenter({customData:Map}) async {
+    final bool showed = await _channel.invokeMethod('showMessageCenter', customData);
+    return showed;
+  }
+
   static Map _packConfiguration(ApptentiveConfiguration configuration) {
     return {
       "key": configuration.apptentiveKey,
