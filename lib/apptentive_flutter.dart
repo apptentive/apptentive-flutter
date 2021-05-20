@@ -1,9 +1,38 @@
 import 'dart:async';
 
-import 'apptentive_terms_and_conditions.dart';
-import 'apptentive_configuration.dart';
-
 import 'package:flutter/services.dart';
+
+// FIXME: java-doc comment
+enum LogLevel { verbose, debug, info, warn, error }
+
+// FIXME: java-doc comment
+class ApptentiveTermsAndConditions {
+  final String? bodyText;
+  final String? linkText;
+  final String? linkURL;
+
+  ApptentiveTermsAndConditions({this.bodyText, this.linkText, this.linkURL});
+}
+
+// FIXME: java-doc comment
+class ApptentiveConfiguration {
+  final String apptentiveKey;
+  final String apptentiveSignature;
+  final LogLevel logLevel;
+  final bool shouldEncryptStorage;
+  final bool shouldSanitizeLogMessages;
+  final bool troubleshootingModeEnabled;
+  final bool shouldCollectAndroidIdOnPreOreoTargets;
+  final ApptentiveTermsAndConditions? surveyTermsAndConditions;
+
+  ApptentiveConfiguration({required this.apptentiveKey, required this.apptentiveSignature,
+    this.logLevel = LogLevel.info,
+    this.shouldEncryptStorage = false,
+    this.shouldSanitizeLogMessages = true,
+    this.troubleshootingModeEnabled = true,
+    this.shouldCollectAndroidIdOnPreOreoTargets = true,
+    this.surveyTermsAndConditions});
+}
 
 class ApptentiveFlutter {
   static const MethodChannel _channel =

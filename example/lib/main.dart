@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:io' show Platform;
 
-import 'package:flutter/services.dart';
 import 'package:apptentive_flutter/apptentive_flutter.dart';
 
 void main() {
@@ -24,24 +24,31 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await ApptentiveFlutter.platformVersion ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+
+    final String apptentiveKey;
+    final String apptentiveSignature;
+    if (Platform.isAndroid) {
+      apptentiveKey = "<YOUR_ANDROID_KEY>";
+      apptentiveSignature = "<YOUR_ANDROID_SIGNATURE>";
+    } else if (Platform.isAndroid) {
+      apptentiveKey = "YOUR_IOS_KEY";
+      apptentiveSignature = "<YOUR_IOS_SIGNATURE>";
+    } else {
+      // FIXME: proper error message
+      return;
     }
+
+    final ApptentiveConfiguration configuration = ApptentiveConfiguration(
+      apptentiveKey: apptentiveKey,
+      apptentiveSignature: apptentiveSignature,
+      logLevel: LogLevel.verbose
+    );
+    bool successful = await ApptentiveFlutter.register(configuration);
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
     if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
   }
 
   @override
