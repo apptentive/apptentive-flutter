@@ -48,6 +48,8 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
       register(call, result);
     } else if (call.method.equals("showMessageCenter")) {
       showMessageCenter(call, result);
+    } else if (call.method.equals("engage")) {
+      engage(call, result);
     } else {
       result.notImplemented();
     }
@@ -70,6 +72,23 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
     ApptentiveConfiguration configuration = unpackConfiguration((Map<String, Object>) call.arguments);
     Apptentive.register(application, configuration);
     result.success(true);
+  }
+
+  private void engage(@NonNull MethodCall call, @NonNull final Result result) {
+    final String event = call.argument("event_name");
+    final Map<String, Object> customData = call.argument("custom_data");
+
+    if (application == null) {
+      result.error(ERROR_CODE_NO_APPLICATION, "Unable to engage event: " + event, null); // TODO: provide a better error details
+      return;
+    }
+
+    Apptentive.engage(application, event, new Apptentive.BooleanCallback() {
+      @Override
+      public void onFinish(boolean engaged) {
+        result.success(engaged);
+      }
+    }, customData);
   }
 
   private void showMessageCenter(@NonNull MethodCall call, @NonNull final Result result) {

@@ -58,9 +58,17 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: TextButton(
-          onPressed: () { ApptentiveFlutter.showMessageCenter(); },
-          child: Text('Show Message Center'),
+        body: Column(
+          children: [
+            TextButton(
+              onPressed: () { ApptentiveFlutter.engage(eventName: "love_dialog"); },
+              child: Text('Love Dialog'),
+            ),
+            TextButton(
+              onPressed: () { ApptentiveFlutter.showMessageCenter(); },
+              child: Text('Show Message Center'),
+            ),
+          ],
         ),
       ),
     );
