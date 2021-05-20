@@ -65,6 +65,20 @@ class ApptentiveFlutter {
     return showed;
   }
 
+  static Future<bool> setPersonName({required String name}) async {
+    final bool showed = await _channel.invokeMethod('setPersonName', {
+      "name" : name
+    });
+    return showed;
+  }
+
+  static Future<bool> setPersonEmail({required String email}) async {
+    final bool showed = await _channel.invokeMethod('setPersonEmail', {
+      "email" : email
+    });
+    return showed;
+  }
+
   static Map _packConfiguration(ApptentiveConfiguration configuration) {
     return {
       "key": configuration.apptentiveKey,

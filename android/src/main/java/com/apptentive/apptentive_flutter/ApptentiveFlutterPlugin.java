@@ -52,6 +52,10 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
       engage(call, result);
     } else if (call.method.equals("canShowInteraction")) {
       canShowInteraction(call, result);
+    } else if (call.method.equals("setPersonName")) {
+      setPersonName(call, result);
+    } else if (call.method.equals("setPersonEmail")) {
+      setPersonEmail(call, result);
     } else {
       result.notImplemented();
     }
@@ -125,5 +129,16 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
     }, customData);
   }
 
+  private void setPersonName(@NonNull MethodCall call, @NonNull final Result result) {
+    final String name = call.argument("name");
+    Apptentive.setPersonName(name);
+    result.success(true);
+  }
+
+  private void setPersonEmail(@NonNull MethodCall call, @NonNull final Result result) {
+    final String email = call.argument("email");
+    Apptentive.setPersonEmail(email);
+    result.success(true);
+  }
   //endregion
 }
