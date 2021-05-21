@@ -36,9 +36,30 @@ class ApptentiveConfiguration {
 
 enum PushProvider { apptentive, amazon, parse, urban_airship }
 
+typedef SurveyFinishedCallback = void Function(bool completed);
+typedef AuthenticationFailedCallback = void Function(String reason);
+
 class ApptentiveFlutter {
-  static const MethodChannel _channel =
-      const MethodChannel('apptentive_flutter');
+  static final MethodChannel _channel = const MethodChannel('apptentive_flutter')
+      ..setMethodCallHandler(_nativeCallback);
+
+  static SurveyFinishedCallback? surveyFinishedCallback;
+  static AuthenticationFailedCallback? authenticationFailedCallback;
+
+  static Future<dynamic> _nativeCallback(MethodCall methodCall) async {
+    switch (methodCall.method) {
+      case 'onSurveyFinished':
+        bool completed = methodCall.arguments["completed"];
+        surveyFinishedCallback?.call(completed);
+        return null;
+      case 'onAuthenticationFailed':
+        String reason = methodCall.arguments["reason"];
+        authenticationFailedCallback?.call(reason);
+        return null;
+      default:
+        throw MissingPluginException('notImplemented');
+    }
+  }
 
   static Future<bool> register(ApptentiveConfiguration configuration) async {
     final bool registered = await _channel.invokeMethod('register', {
