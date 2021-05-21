@@ -59,8 +59,12 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
       setPersonEmail(call, result);
     } else if (call.method.equals("addCustomPersonData")) {
       addCustomPersonData(call, result);
+    } else if (call.method.equals("removeCustomPersonData")) {
+      removeCustomPersonData(call, result);
     } else if (call.method.equals("addCustomDeviceData")) {
       addCustomDeviceData(call, result);
+    } else if (call.method.equals("removeCustomDeviceData")) {
+      removeCustomDeviceData(call, result);
     } else {
       result.notImplemented();
     }
@@ -166,6 +170,12 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
     result.success(true);
   }
 
+  private void removeCustomPersonData(@NonNull MethodCall call, @NonNull final Result result) {
+    final String key = call.argument("key");
+    Apptentive.removeCustomPersonData(key);
+    result.success(true);
+  }
+
   private void addCustomDeviceData(@NonNull MethodCall call, @NonNull final Result result) {
     final String key = call.argument("key");
     final Object value = call.argument("value");
@@ -183,6 +193,12 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
       );
       return;
     }
+    result.success(true);
+  }
+
+  private void removeCustomDeviceData(@NonNull MethodCall call, @NonNull final Result result) {
+    final String key = call.argument("key");
+    Apptentive.removeCustomDeviceData(key);
     result.success(true);
   }
 

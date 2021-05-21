@@ -87,10 +87,24 @@ class ApptentiveFlutter {
     return successful;
   }
 
+  static Future<bool> removeCustomPersonData({required String key}) async {
+    final bool successful = await _channel.invokeMethod('removeCustomPersonData', {
+      "key" : key
+    });
+    return successful;
+  }
+
   static Future<bool> addCustomDeviceData({required String key, required dynamic value}) async {
     final bool successful = await _channel.invokeMethod('addCustomDeviceData', {
       "key" : key,
       "value" : value,
+    });
+    return successful;
+  }
+
+  static Future<bool> removeCustomDeviceData({required String key}) async {
+    final bool successful = await _channel.invokeMethod('removeCustomDeviceData', {
+      "key" : key
     });
     return successful;
   }
