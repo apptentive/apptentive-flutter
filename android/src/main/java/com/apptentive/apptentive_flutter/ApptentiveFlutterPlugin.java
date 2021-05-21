@@ -16,12 +16,15 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
+import static com.apptentive.apptentive_flutter.PluginUtils.getStackTrace;
+import static com.apptentive.apptentive_flutter.PluginUtils.parsePushProvider;
 import static com.apptentive.apptentive_flutter.PluginUtils.unpackConfiguration;
 
 /** ApptentiveFlutterPlugin */
 public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler {
   private static final String ERROR_CODE_NO_APPLICATION = "100";
   private static final String ERROR_CODE_ARGUMENT_ERROR = "200";
+  private static final String ERROR_CODE_EXCEPTION = "300";
 
   /// The MethodChannel that will the communication between Flutter and native Android
   ///
@@ -45,28 +48,51 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-    if (call.method.equals("register")) {
-      register(call, result);
-    } else if (call.method.equals("showMessageCenter")) {
-      showMessageCenter(call, result);
-    } else if (call.method.equals("engage")) {
-      engage(call, result);
-    } else if (call.method.equals("canShowInteraction")) {
-      canShowInteraction(call, result);
-    } else if (call.method.equals("setPersonName")) {
-      setPersonName(call, result);
-    } else if (call.method.equals("setPersonEmail")) {
-      setPersonEmail(call, result);
-    } else if (call.method.equals("addCustomPersonData")) {
-      addCustomPersonData(call, result);
-    } else if (call.method.equals("removeCustomPersonData")) {
-      removeCustomPersonData(call, result);
-    } else if (call.method.equals("addCustomDeviceData")) {
-      addCustomDeviceData(call, result);
-    } else if (call.method.equals("removeCustomDeviceData")) {
-      removeCustomDeviceData(call, result);
-    } else {
-      result.notImplemented();
+    try {
+      switch (call.method) {
+        case "register":
+          register(call, result);
+          break;
+        case "showMessageCenter":
+          showMessageCenter(call, result);
+          break;
+        case "engage":
+          engage(call, result);
+          break;
+        case "canShowInteraction":
+          canShowInteraction(call, result);
+          break;
+        case "setPersonName":
+          setPersonName(call, result);
+          break;
+        case "setPersonEmail":
+          setPersonEmail(call, result);
+          break;
+        case "addCustomPersonData":
+          addCustomPersonData(call, result);
+          break;
+        case "removeCustomPersonData":
+          removeCustomPersonData(call, result);
+          break;
+        case "addCustomDeviceData":
+          addCustomDeviceData(call, result);
+          break;
+        case "removeCustomDeviceData":
+          removeCustomDeviceData(call, result);
+          break;
+        case "setPushNotificationIntegration":
+          setPushNotificationIntegration(call, result);
+          break;
+        default:
+          result.notImplemented();
+          break;
+      }
+    } catch (Exception e) {
+      result.error(
+              ERROR_CODE_EXCEPTION,
+              "Exception while invoking method " + call.method + " with arguments: " + call.arguments + "\n" + getStackTrace(e),
+              null
+      );
     }
   }
 
@@ -199,6 +225,13 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
   private void removeCustomDeviceData(@NonNull MethodCall call, @NonNull final Result result) {
     final String key = call.argument("key");
     Apptentive.removeCustomDeviceData(key);
+    result.success(true);
+  }
+
+  private void setPushNotificationIntegration(@NonNull MethodCall call, @NonNull final Result result) {
+    final int pushProvider = parsePushProvider((String) call.argument("push_provider"));
+    final String token = call.argument("token");
+    Apptentive.setPushNotificationIntegration(pushProvider, token);
     result.success(true);
   }
 

@@ -34,6 +34,8 @@ class ApptentiveConfiguration {
     this.surveyTermsAndConditions});
 }
 
+enum PushProvider { apptentive, amazon, parse, urban_airship }
+
 class ApptentiveFlutter {
   static const MethodChannel _channel =
       const MethodChannel('apptentive_flutter');
@@ -105,6 +107,14 @@ class ApptentiveFlutter {
   static Future<bool> removeCustomDeviceData({required String key}) async {
     final bool successful = await _channel.invokeMethod('removeCustomDeviceData', {
       "key" : key
+    });
+    return successful;
+  }
+
+  static Future<bool> setPushNotificationIntegration({required PushProvider provider, required String token}) async {
+    final bool successful = await _channel.invokeMethod('setPushNotificationIntegration', {
+      "push_provider" : provider.toString(),
+      "token" : token
     });
     return successful;
   }

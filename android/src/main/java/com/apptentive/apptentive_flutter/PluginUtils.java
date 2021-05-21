@@ -1,12 +1,39 @@
 package com.apptentive.apptentive_flutter;
 
+import com.apptentive.android.sdk.Apptentive;
 import com.apptentive.android.sdk.ApptentiveConfiguration;
 import com.apptentive.android.sdk.ApptentiveLog.Level;
 import com.apptentive.android.sdk.module.engagement.interaction.model.TermsAndConditions;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Map;
 
 final class PluginUtils {
+    public static String getStackTrace(Throwable t) {
+        Writer writer = new StringWriter();
+        t.printStackTrace(new PrintWriter(writer));
+        return writer.toString();
+    }
+
+    public static int parsePushProvider(String pushProvider) {
+        if ("apptentive".equals(pushProvider)) {
+            return Apptentive.PUSH_PROVIDER_APPTENTIVE;
+        }
+        if ("amazon".equals(pushProvider)) {
+            return Apptentive.PUSH_PROVIDER_AMAZON_AWS_SNS;
+        }
+        if ("parse".equals(pushProvider)) {
+            return Apptentive.PUSH_PROVIDER_PARSE;
+        }
+        if ("urban_airship".equals(pushProvider)) {
+            return Apptentive.PUSH_PROVIDER_URBAN_AIRSHIP;
+        }
+
+        throw new IllegalArgumentException("Unknown push provider: " + pushProvider);
+    }
+
     public static ApptentiveConfiguration unpackConfiguration(Map<String, Object> data) {
         final String apptentiveKey = (String) data.get("key");
         final String apptentiveSignature = (String) data.get("signature");
