@@ -111,6 +111,13 @@ class ApptentiveFlutter {
     return successful;
   }
 
+  static Future<bool> login({required String token}) async {
+    final bool successful = await _channel.invokeMethod('login', {
+      "token" : token
+    });
+    return successful;
+  }
+
   static Future<bool> setPushNotificationIntegration({required PushProvider provider, required String token}) async {
     final bool successful = await _channel.invokeMethod('setPushNotificationIntegration', {
       "push_provider" : provider.toString(),

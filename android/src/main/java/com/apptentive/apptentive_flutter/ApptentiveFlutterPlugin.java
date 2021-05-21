@@ -25,6 +25,7 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
   private static final String ERROR_CODE_NO_APPLICATION = "100";
   private static final String ERROR_CODE_ARGUMENT_ERROR = "200";
   private static final String ERROR_CODE_EXCEPTION = "300";
+  private static final String ERROR_CODE_LOGIN_FAILED = "400";
 
   /// The MethodChannel that will the communication between Flutter and native Android
   ///
@@ -79,6 +80,12 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
           break;
         case "removeCustomDeviceData":
           removeCustomDeviceData(call, result);
+          break;
+        case "login":
+          login(call, result);
+          break;
+        case "logout":
+          logout(call, result);
           break;
         case "setPushNotificationIntegration":
           setPushNotificationIntegration(call, result);
@@ -225,6 +232,26 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
   private void removeCustomDeviceData(@NonNull MethodCall call, @NonNull final Result result) {
     final String key = call.argument("key");
     Apptentive.removeCustomDeviceData(key);
+    result.success(true);
+  }
+
+  private void login(@NonNull MethodCall call, @NonNull final Result result) {
+    final String token = call.argument("token");
+    Apptentive.login(token, new Apptentive.LoginCallback() {
+      @Override
+      public void onLoginFinish() {
+        result.success(true);
+      }
+
+      @Override
+      public void onLoginFail(String errorMessage) {
+        result.error(ERROR_CODE_LOGIN_FAILED, "Login failed: " + errorMessage, null);
+      }
+    });
+  }
+
+  private void logout(@NonNull MethodCall call, @NonNull final Result result) {
+    Apptentive.logout();
     result.success(true);
   }
 
