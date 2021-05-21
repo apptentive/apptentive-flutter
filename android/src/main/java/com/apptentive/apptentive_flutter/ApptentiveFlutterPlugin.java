@@ -6,7 +6,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.apptentive.android.sdk.Apptentive;
+import com.apptentive.android.sdk.Apptentive.AuthenticationFailedReason;
 import com.apptentive.android.sdk.ApptentiveConfiguration;
+import com.apptentive.android.sdk.module.survey.OnSurveyFinishedListener;
 
 import java.util.Map;
 
@@ -119,6 +121,18 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
     @SuppressWarnings("unchecked")
     ApptentiveConfiguration configuration = unpackConfiguration((Map<String, Object>) call.argument("configuration"));
     Apptentive.register(application, configuration);
+    Apptentive.setAuthenticationFailedListener(new Apptentive.AuthenticationFailedListener() {
+      @Override
+      public void onAuthenticationFailed(AuthenticationFailedReason reason) {
+        channel.invokeMethod("onAuthenticationFailed",PluginUtils.map("reason", reason.toString()));
+      }
+    });
+    Apptentive.setOnSurveyFinishedListener(new OnSurveyFinishedListener() {
+      @Override
+      public void onSurveyFinished(boolean completed) {
+        channel.invokeMethod("onSurveyFinished",PluginUtils.map("completed", completed));
+      }
+    });
     result.success(true);
   }
 

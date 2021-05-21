@@ -8,9 +8,16 @@ import com.apptentive.android.sdk.module.engagement.interaction.model.TermsAndCo
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Map;
 
 final class PluginUtils {
+    public static Map<String, Object> map(String key, Object value) {
+        Map<String, Object> map = new HashMap<>();
+        map.put(key, value);
+        return map;
+    }
+
     public static String getStackTrace(Throwable t) {
         Writer writer = new StringWriter();
         t.printStackTrace(new PrintWriter(writer));
