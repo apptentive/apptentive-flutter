@@ -2,17 +2,59 @@
 
 #import <Apptentive/Apptentive.h>
 
+inline static _Nullable id fromNullable(_Nullable id value) {
+  return [value isKindOfClass:[NSNull class]] ? nil : value;
+}
+
+static BOOL parseLogLevel(NSString *value, ApptentiveLogLevel *outResult) {
+  if ([@"LogLevel.verbose" isEqualToString:value]) {
+    if (outResult) *outResult = ApptentiveLogLevelVerbose;
+    return YES;
+  }
+  if ([@"LogLevel.debug" isEqualToString:value]) {
+    if (outResult) *outResult = ApptentiveLogLevelDebug;
+    return YES;
+  }
+  if ([@"LogLevel.info" isEqualToString:value]) {
+    if (outResult) *outResult = ApptentiveLogLevelInfo;
+    return YES;
+  }
+  if ([@"LogLevel.warn" isEqualToString:value]) {
+    if (outResult) *outResult = ApptentiveLogLevelWarn;
+    return YES;
+  }
+  if ([@"LogLevel.error" isEqualToString:value]) {
+    if (outResult) *outResult = ApptentiveLogLevelError;
+    return YES;
+  }
+  
+  return NO;
+}
+
 static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   NSString *apptentiveKey = info[@"key"];
   NSString *apptentiveSignature = info[@"signature"];
   ApptentiveConfiguration *configuration = [ApptentiveConfiguration configurationWithApptentiveKey:apptentiveKey apptentiveSignature:apptentiveSignature];
-  configuration.logLevel = ApptentiveLogLevelVerbose;
+  
+  // log level
+  ApptentiveLogLevel logLevel;
+  NSString *logLevelValue = fromNullable(info[@"log_level"]);
+  if (logLevelValue != nil) {
+    if (parseLogLevel(logLevelValue, &logLevel)) {
+      configuration.logLevel = logLevel;
+    } else {
+      NSLog(@"Unknown log level: %@", logLevelValue);
+    }
+  }
+  
+  // sanitize log messages
+  id shouldSanitizeLogMessages = fromNullable(info[@"should_sanitize_log_messages"]);
+  if (shouldSanitizeLogMessages != nil) {
+    configuration.shouldSanitizeLogMessages = [shouldSanitizeLogMessages boolValue];
+  }
+  
   // FIXME: parse additional fields
   return configuration;
-}
-
-inline static _Nullable id fromNullable(_Nullable id value) {
-  return [value isKindOfClass:[NSNull class]] ? nil : value;
 }
 
 @interface NSNumber (ApptentiveBoolean)
