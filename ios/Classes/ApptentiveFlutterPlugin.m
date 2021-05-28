@@ -86,7 +86,10 @@ inline static _Nullable id fromNullable(_Nullable id value) {
 }
 
 - (void)handleCanShowInteractionCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  NSString *event = call.arguments[@"event_name"];
+  [Apptentive.shared queryCanShowInteractionForEvent:event completion:^(BOOL canShowInteraction) {
+      result([NSNumber numberWithBool:canShowInteraction]);
+  }];
 }
 
 - (void)handleSetPersonNameCall:(FlutterMethodCall*)call result:(FlutterResult)result {
