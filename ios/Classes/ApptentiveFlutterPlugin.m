@@ -58,7 +58,13 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 }
 
 - (void)handleShowMessageCenterCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  // TODO: check if the instance is properly initialized
+  NSDictionary *customData = call.arguments;
+  [Apptentive.shared presentMessageCenterFromViewController:nil
+                                             withCustomData:customData
+                                                 completion:^(BOOL presented) {
+    result([NSNumber numberWithBool:presented]);
+  }];
 }
 
 - (void)handleEngageCall:(FlutterMethodCall*)call result:(FlutterResult)result {
