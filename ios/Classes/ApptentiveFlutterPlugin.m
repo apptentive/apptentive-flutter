@@ -1,5 +1,15 @@
 #import "ApptentiveFlutterPlugin.h"
 
+#import <Apptentive/Apptentive.h>
+
+static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
+  NSString *apptentiveKey = info[@"key"];
+  NSString *apptentiveSignature = info[@"signature"];
+  ApptentiveConfiguration *configuration = [ApptentiveConfiguration configurationWithApptentiveKey:apptentiveKey apptentiveSignature:apptentiveSignature];
+  // FIXME: parse additional fields
+  return configuration;
+}
+
 @implementation ApptentiveFlutterPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   FlutterMethodChannel* channel = [FlutterMethodChannel
@@ -42,7 +52,9 @@
 }
 
 - (void)handleRegisterCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  ApptentiveConfiguration *configuration = unpackConfiguration(call.arguments[@"configuration"]);
+  [Apptentive registerWithConfiguration:configuration];
+  result(@YES);
 }
 
 - (void)handleShowMessageCenterCall:(FlutterMethodCall*)call result:(FlutterResult)result {
