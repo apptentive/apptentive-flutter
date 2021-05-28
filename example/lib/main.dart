@@ -29,7 +29,7 @@ class _MyAppState extends State<MyApp> {
     if (Platform.isAndroid) {
       apptentiveKey = "<YOUR_ANDROID_KEY>";
       apptentiveSignature = "<YOUR_ANDROID_SIGNATURE>";
-    } else if (Platform.isAndroid) {
+    } else if (Platform.isIOS) {
       apptentiveKey = "YOUR_IOS_KEY";
       apptentiveSignature = "<YOUR_IOS_SIGNATURE>";
     } else {
