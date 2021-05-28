@@ -15,6 +15,22 @@ inline static _Nullable id fromNullable(_Nullable id value) {
   return [value isKindOfClass:[NSNull class]] ? nil : value;
 }
 
+@interface NSNumber (ApptentiveBoolean)
+
+- (BOOL)apptentive_isBoolean;
+
+@end
+
+@implementation NSNumber (ApptentiveBoolean)
+
+- (BOOL)apptentive_isBoolean {
+    CFTypeID boolID = CFBooleanGetTypeID();
+    CFTypeID numID = CFGetTypeID((__bridge CFTypeRef)(self));
+    return numID == boolID;
+}
+
+@end
+
 @implementation ApptentiveFlutterPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   FlutterMethodChannel* channel = [FlutterMethodChannel
@@ -107,19 +123,51 @@ inline static _Nullable id fromNullable(_Nullable id value) {
 }
 
 - (void)handleAddCustomPersonDataCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  NSString *key = call.arguments[@"key"];
+  id value = fromNullable(call.arguments[@"value"]);
+  if ([value isKindOfClass:[NSString class]] || value == nil) {
+    [Apptentive.shared addCustomPersonDataString:value withKey:key];
+    result(@YES);
+  } else if ([value isKindOfClass:[NSNumber class]]) {
+    if ([value apptentive_isBoolean]) {
+      [Apptentive.shared addCustomPersonDataBool:[value boolValue] withKey:key];
+    } else {
+      [Apptentive.shared addCustomPersonDataNumber:value withKey:key];
+    }
+    result(@YES);
+  } else {
+    result(FlutterMethodNotImplemented);
+  }
 }
 
 - (void)handleRemoveCustomPersonDataCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  NSString *key = call.arguments[@"key"];
+  [Apptentive.shared removeCustomPersonDataWithKey:key];
+  result(@YES);
 }
 
 - (void)handleAddCustomDeviceDataCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  NSString *key = call.arguments[@"key"];
+  id value = fromNullable(call.arguments[@"value"]);
+  if ([value isKindOfClass:[NSString class]] || value == nil) {
+    [Apptentive.shared addCustomDeviceDataString:value withKey:key];
+    result(@YES);
+  } else if ([value isKindOfClass:[NSNumber class]]) {
+    if ([value apptentive_isBoolean]) {
+      [Apptentive.shared addCustomDeviceDataBool:[value boolValue] withKey:key];
+    } else {
+      [Apptentive.shared addCustomDeviceDataNumber:value withKey:key];
+    }
+    result(@YES);
+  } else {
+    result(FlutterMethodNotImplemented);
+  }
 }
 
 - (void)handleRemoveCustomDeviceDataCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  NSString *key = call.arguments[@"key"];
+  [Apptentive.shared removeCustomDeviceDataWithKey:key];
+  result(@YES);
 }
 
 - (void)handleLoginCall:(FlutterMethodCall*)call result:(FlutterResult)result {
