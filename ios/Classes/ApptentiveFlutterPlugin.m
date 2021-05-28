@@ -171,11 +171,16 @@ inline static _Nullable id fromNullable(_Nullable id value) {
 }
 
 - (void)handleLoginCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  NSString *token = call.arguments[@"token"];
+  [Apptentive.shared logInWithToken:token
+                         completion:^(BOOL success, NSError * _Nonnull error) {
+    result([NSNumber numberWithBool:success]);
+  }];
 }
 
 - (void)handleLogoutCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  [Apptentive.shared logOut];
+  result(@YES);
 }
 
 - (void)handleSetPushNotificationIntegrationCall:(FlutterMethodCall*)call result:(FlutterResult)result {
