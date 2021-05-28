@@ -6,8 +6,13 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   NSString *apptentiveKey = info[@"key"];
   NSString *apptentiveSignature = info[@"signature"];
   ApptentiveConfiguration *configuration = [ApptentiveConfiguration configurationWithApptentiveKey:apptentiveKey apptentiveSignature:apptentiveSignature];
+  configuration.logLevel = ApptentiveLogLevelVerbose;
   // FIXME: parse additional fields
   return configuration;
+}
+
+inline static _Nullable id fromNullable(_Nullable id value) {
+  return [value isKindOfClass:[NSNull class]] ? nil : value;
 }
 
 @implementation ApptentiveFlutterPlugin
@@ -68,7 +73,16 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 }
 
 - (void)handleEngageCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  NSString *event = call.arguments[@"event_name"];
+  NSDictionary *customData = fromNullable(call.arguments[@"custom_data"]);
+
+  // TODO: check if the instance is properly initialized
+  [Apptentive.shared engage:event
+             withCustomData:customData
+         fromViewController:nil
+                 completion:^(BOOL engaged) {
+    result([NSNumber numberWithBool:engaged]);
+  }];
 }
 
 - (void)handleCanShowInteractionCall:(FlutterMethodCall*)call result:(FlutterResult)result {
