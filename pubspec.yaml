@@ -10,6 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  fluttertoast: ^8.0.7
 
 dev_dependencies:
   flutter_test:
