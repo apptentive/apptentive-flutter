@@ -93,11 +93,17 @@ inline static _Nullable id fromNullable(_Nullable id value) {
 }
 
 - (void)handleSetPersonNameCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  // TODO: check if the instance is properly initialized
+  NSString *name = call.arguments[@"name"];
+  [Apptentive.shared setPersonName:name];
+  result(@YES);
 }
 
 - (void)handleSetPersonEmailCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  // TODO: check if the instance is properly initialized
+  NSString *email = call.arguments[@"email"];
+  [Apptentive.shared setPersonEmailAddress:email];
+  result(@YES);
 }
 
 - (void)handleAddCustomPersonDataCall:(FlutterMethodCall*)call result:(FlutterResult)result {
