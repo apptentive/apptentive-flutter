@@ -27,16 +27,13 @@ class _MyAppState extends State<MyApp> {
     final String apptentiveKey;
     final String apptentiveSignature;
     if (Platform.isAndroid) {
-      apptentiveKey = "ANDROID-APPTENTIVESUPPORTSANDBOX";
-      apptentiveSignature = "9d4e1134f4d3d7fcea7e52832550c8bb";
-      //apptentiveKey = "<YOUR_ANDROID_KEY>";
-    //  apptentiveSignature = "<YOUR_ANDROID_SIGNATURE>";
+      apptentiveKey = "<YOUR_ANDROID_KEY>";
+      apptentiveSignature = "<YOUR_ANDROID_SIGNATURE>";
     } else if (Platform.isIOS) {
-      apptentiveKey = "<YOUR_IOS_KEY>";
+      apptentiveKey = "YOUR_IOS_KEY";
       apptentiveSignature = "<YOUR_IOS_SIGNATURE>";
     } else {
-      String os = Platform.operatingSystem;
-      print("E Apptentive: Platform not supported for Apptentive Flutter Plugin: ${os}. Apptentive failed to initialize.");
+      // FIXME: proper error message
       return;
     }
 
@@ -63,127 +60,35 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: Column(
             children: [
-
-              eventTester(context),
-
-              personCustomDataTester(context),
-
-              personCustomDataRemoverTester(context),
-
-              deviceCustomDataTester(context),
-
-              deviceCustomDataRemoverTester(context),
-
-              person(context),
-
-              OutlinedButton(
+              TextButton(
+                onPressed: () {
+                  ApptentiveFlutter.engage(eventName: "love_dialog").then((value) {
+                    if (!value) {
+                      Fluttertoast.showToast(msg: "Not engaged");
+                    }
+                  });
+                },
+                child: Text('Love Dialog'),
+              ),
+              TextButton(
+                onPressed: () {
+                  ApptentiveFlutter.canShowInteraction(eventName: "love_dialog").then((value) {
+                    Fluttertoast.showToast(msg: value ? "Yes" : "No");
+                  });
+                },
+                child: Text('Can Show Love Dialog'),
+              ),
+              TextButton(
                 onPressed: () {
                   ApptentiveFlutter.showMessageCenter();
                 },
                 child: Text('Show Message Center'),
               ),
-
+              person(context)
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget eventTester(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-      child: editText(
-        hint: "Where Event",
-        onSubmit: (eventName) async {
-          ApptentiveFlutter.engage(eventName: eventName).then((value) {
-            if (!value) {
-              Fluttertoast.showToast(msg: "Not engaged");
-            } else {
-              Fluttertoast.showToast(msg: "${eventName} engaged!");
-            }
-          });
-        },
-        buttonText: "Engage"
-      ),
-    );
-  }
-
-  Widget personCustomDataTester(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-      child: doubleEditText(
-        hint: "Person Data Name",
-        hint2: "Person Data Value",
-        onSubmit: (personCustomDataMap) async {
-          ApptentiveFlutter.addCustomPersonData(key: personCustomDataMap["name"]!, value: personCustomDataMap["value"]!).then((value) {
-            if (!value) {
-              Fluttertoast.showToast(msg: "Person Custom Data Not Added");
-            } else {
-              Fluttertoast.showToast(msg: "Person Custom Data Added!");
-            }
-          });
-        },
-        buttonText: "Add"
-      )
-    );
-  }
-
-  Widget personCustomDataRemoverTester(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-      child: editText(
-        hint: "Person Custom Data To Remove",
-        onSubmit: (personCustomDataName) async {
-          ApptentiveFlutter.removeCustomPersonData(key: personCustomDataName).then((value) {
-            if (!value) {
-              Fluttertoast.showToast(msg: "Custom Person Data Not Removed");
-            } else {
-              Fluttertoast.showToast(msg: "Custom Person Data Removed!");
-            }
-          });
-        },
-        buttonText: "Remove"
-      )
-    );
-  }
-
-  Widget deviceCustomDataTester(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-      child: doubleEditText(
-        hint: "Device Data Name",
-        hint2: "Device Data Value",
-        onSubmit: (deviceCustomDataMap) async {
-          ApptentiveFlutter.addCustomDeviceData(key: deviceCustomDataMap["name"]!, value: deviceCustomDataMap["value"]!).then((value) {
-            if (!value) {
-              Fluttertoast.showToast(msg: "Device Custom Data Not Added");
-            } else {
-              Fluttertoast.showToast(msg: "Device Custom Data Added!");
-            }
-          });
-        },
-        buttonText: "Add"
-      )
-    );
-  }
-
-  Widget deviceCustomDataRemoverTester(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-      child: editText(
-        hint: "Device Custom Data To Remove",
-        onSubmit: (deviceCustomDataName) async {
-          ApptentiveFlutter.removeCustomDeviceData(key: deviceCustomDataName).then((value) {
-            if (!value) {
-              Fluttertoast.showToast(msg: "Custom Device Data Not Removed");
-            } else {
-              Fluttertoast.showToast(msg: "Custom Device Data Removed!");
-            }
-          });
-        },
-        buttonText: "Remove"
-      )
     );
   }
 
@@ -196,22 +101,20 @@ class _MyAppState extends State<MyApp> {
             hint: "Person name",
             onSubmit: (name) async {
               ApptentiveFlutter.setPersonName(name: name);
-            },
-            buttonText: "Update"
+            }
           ),
           editText(
               hint: "Person email",
               onSubmit: (email) async {
                 ApptentiveFlutter.setPersonEmail(email: email);
-              },
-              buttonText: "Update"
+              }
           ),
         ],
       ),
     );
   }
 
-  Widget editText({required String hint, required AsyncValueSetter<String> onSubmit, required String buttonText}) {
+  Widget editText({required String hint, required AsyncValueSetter<String> onSubmit}) {
     var controller = TextEditingController();
 
     return Row(
@@ -225,44 +128,9 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
         ),
-        OutlinedButton(
-          onPressed: () {
-            onSubmit(controller.text);
-          },
-          child: Text("${buttonText}"))
-      ],
-    );
-  }
-
-  Widget doubleEditText({required String hint, required String hint2, required AsyncValueSetter<Map<String,String>> onSubmit, required String buttonText}) {
-    var controller = TextEditingController();
-    var controller2 = TextEditingController();
-
-    return Row(
-      children: [
-        Flexible(
-          child: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: hint
-            ),
-          ),
-        ),
-        Flexible(
-          child: TextField(
-            controller: controller2,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: hint2
-            ),
-          ),
-        ),
-        OutlinedButton(
-          onPressed: () {
-            onSubmit({"name":controller.text,"value":controller2.text});
-          },
-          child: Text("${buttonText}"))
+        TextButton(onPressed: () {
+          onSubmit(controller.text);
+        }, child: Text("Update"))
       ],
     );
   }
