@@ -1,6 +1,7 @@
 package com.apptentive.apptentive_flutter;
 
 import android.app.Application;
+import android.app.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,6 +14,8 @@ import com.apptentive.android.sdk.module.survey.OnSurveyFinishedListener;
 import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -23,7 +26,7 @@ import static com.apptentive.apptentive_flutter.PluginUtils.parsePushProvider;
 import static com.apptentive.apptentive_flutter.PluginUtils.unpackConfiguration;
 
 /** ApptentiveFlutterPlugin */
-public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler {
+public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware {
   private static final String ERROR_CODE_NO_APPLICATION = "100";
   private static final String ERROR_CODE_ARGUMENT_ERROR = "200";
   private static final String ERROR_CODE_EXCEPTION = "300";
@@ -40,13 +43,24 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
    */
   private @Nullable Application application;
 
+  /**
+  * Current Activity object
+  */
+  private @Nullable Activity activity;
+
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "apptentive_flutter");
     channel.setMethodCallHandler(this);
 
     application = (Application) flutterPluginBinding.getApplicationContext();
+
     Apptentive.registerCallbacks(application);
+  }
+
+  @Override
+  public void onAttachedToActivity(@NonNull ActivityPluginBinding activityPluginBinding) {
+    this.activity = (Activity) activityPluginBinding.getActivity();
   }
 
   @Override
@@ -110,6 +124,21 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
     channel.setMethodCallHandler(null);
   }
 
+  @Override
+  public void onDetachedFromActivity() {
+    this.activity = null;
+  }
+
+  @Override
+  public void onDetachedFromActivityForConfigChanges() {
+    this.activity = null;
+  }
+
+  @Override
+  public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding activityPluginBinding) {
+    this.activity = (Activity) activityPluginBinding.getActivity();
+  }
+
   //region Methods
 
   private void register(@NonNull MethodCall call, @NonNull Result result) {
@@ -145,7 +174,7 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
       return;
     }
 
-    Apptentive.engage(application, event, new Apptentive.BooleanCallback() {
+    Apptentive.engage(activity, event, new Apptentive.BooleanCallback() {
       @Override
       public void onFinish(boolean engaged) {
         result.success(engaged);
