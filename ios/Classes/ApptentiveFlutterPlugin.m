@@ -27,7 +27,7 @@ static BOOL parseLogLevel(NSString *value, ApptentiveLogLevel *outResult) {
     if (outResult) *outResult = ApptentiveLogLevelError;
     return YES;
   }
-  
+
   return NO;
 }
 
@@ -35,7 +35,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   NSString *apptentiveKey = info[@"key"];
   NSString *apptentiveSignature = info[@"signature"];
   ApptentiveConfiguration *configuration = [ApptentiveConfiguration configurationWithApptentiveKey:apptentiveKey apptentiveSignature:apptentiveSignature];
-  
+
   // log level
   ApptentiveLogLevel logLevel;
   NSString *logLevelValue = fromNullable(info[@"log_level"]);
@@ -46,13 +46,13 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
       NSLog(@"Unknown log level: %@", logLevelValue);
     }
   }
-  
+
   // sanitize log messages
   id shouldSanitizeLogMessages = fromNullable(info[@"should_sanitize_log_messages"]);
   if (shouldSanitizeLogMessages != nil) {
     configuration.shouldSanitizeLogMessages = [shouldSanitizeLogMessages boolValue];
   }
-  
+
   // FIXME: parse additional fields
   return configuration;
 }
@@ -73,9 +73,12 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 @end
 
-@implementation ApptentiveFlutterPlugin
+@implementation ApptentiveFlutterPlugin {
+  FlutterMethodChannel* channel;
+}
+
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-  FlutterMethodChannel* channel = [FlutterMethodChannel
+  channel = [FlutterMethodChannel
       methodChannelWithName:@"apptentive_flutter"
             binaryMessenger:[registrar messenger]];
   ApptentiveFlutterPlugin* instance = [[ApptentiveFlutterPlugin alloc] init];
@@ -117,6 +120,14 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 - (void)handleRegisterCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   ApptentiveConfiguration *configuration = unpackConfiguration(call.arguments[@"configuration"]);
   [Apptentive registerWithConfiguration:configuration];
+
+  // Set notification listeners
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageCenterUnreadCountChangedNotification:) name:ApptentiveMessageCenterUnreadCountChangedNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveyShownNotification:) name:ApptentiveSurveyShownNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveySentNotification:) name:ApptentiveSurveySentNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveyCancelledNotification:) name:ApptentiveSurveyCancelledNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageSentNotification:) name:ApptentiveMessageSentNotification object:nil];
+
   result(@YES);
 }
 
@@ -227,6 +238,48 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (void)handleSetPushNotificationIntegrationCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   result(FlutterMethodNotImplemented);
+}
+
+// Notification Functions
+
+- (void)messageCenterUnreadCountChangedNotification:(NSNotification *)notification {
+  NSInteger count = [notification.userInfo[@"count"] intValue];
+  [self->channel invokeMethod:@"messageCenterUnreadCountChangedNotification"
+        arguments:@{
+          @"count" : count,
+        }
+  ];
+}
+
+- (void)surveyShownNotification:(NSNotification *)notification {
+  NSString apptentiveSurveyIDKey = notification.object;
+  [self->channel invokeMethod:@"surveyShownNotification"
+        arguments:@{
+          @"apptentiveSurveyIDKey" : apptentiveSurveyIDKey,
+        }
+  ];
+}
+
+- (void)surveySentNotification:(NSNotification *)notification {
+  NSString apptentiveSurveyIDKey = notification.object;
+  [self->channel invokeMethod:@"surveySentNotification"
+        arguments:@{
+          @"apptentiveSurveyIDKey" : apptentiveSurveyIDKey,
+        }
+  ];
+}
+
+- (void)surveyCancelledNotification:(NSNotification *)notification {
+  [self->channel invokeMethod:@"surveyCancelledNotification"];
+}
+
+- (void)messageSentNotification:(NSNotification *)notification {
+  NSString sentByUser = notification.userInfo[@"sentByUser"];
+  [self->channel invokeMethod:@"messageSentNotification"
+        arguments:@{
+          @"sentByUser" : sentByUser,
+        }
+  ];
 }
 
 @end

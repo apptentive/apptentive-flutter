@@ -36,15 +36,27 @@ class ApptentiveConfiguration {
 
 enum PushProvider { apptentive, amazon, parse, urban_airship }
 
+// Android Callbacks
 typedef SurveyFinishedCallback = void Function(bool completed);
 typedef AuthenticationFailedCallback = void Function(String reason);
+// iOS Notifications
+typedef ApptentiveMessageCenterUnreadCountChangedNotification = void Function(int count);
+typedef ApptentiveSurveyShownNotification = void Function(String apptentiveSurveyIDKey);
+typedef ApptentiveSurveySentNotification = void Function(String apptentiveSurveyIDKey);
+typedef ApptentiveSurveyCancelledNotification = void Function();
+typedef ApptentiveMessageSentNotification = void Function(String sentByUser);
 
 class ApptentiveFlutter {
   static final MethodChannel _channel = const MethodChannel('apptentive_flutter')
       ..setMethodCallHandler(_nativeCallback);
 
   static SurveyFinishedCallback? surveyFinishedCallback;
-  static AuthenticationFailedCallback? authenticationFailedCallback;
+  static AuthenticationFailedCallback? authenticationFailedCallback
+  static ApptentiveMessageCenterUnreadCountChangedNotification? messageCenterUnreadCountChangedNotification;
+  static ApptentiveSurveyShownNotification? surveyShownNotification;
+  static ApptentiveSurveySentNotification? surveySentNotification;
+  static ApptentiveSurveyCancelledNotification? surveyCancelledNotification;
+  static ApptentiveMessageSentNotification? messageSentNotification;
 
   static Future<dynamic> _nativeCallback(MethodCall methodCall) async {
     switch (methodCall.method) {
@@ -55,6 +67,25 @@ class ApptentiveFlutter {
       case 'onAuthenticationFailed':
         String reason = methodCall.arguments["reason"];
         authenticationFailedCallback?.call(reason);
+        return null;
+      case 'messageCenterUnreadCountChangedNotification':
+        int count = methodCall.arguments["count"];
+        messageCenterUnreadCountChangedNotification?.call(count);
+        return null;
+      case 'surveyShownNotification':
+        String apptentiveSurveyIDKey = methodCall.arguments["apptentiveSurveyIDKey"];
+        surveyShownNotification?.call(apptentiveSurveyIDKey);
+        return null;
+      case 'surveySentNotification':
+        String apptentiveSurveyIDKey = methodCall.arguments["apptentiveSurveyIDKey"];
+        surveySentNotification?.call(apptentiveSurveyIDKey);
+        return null;
+      case 'surveyCancelledNotification':
+        surveyCancelledNotification?.call();
+        return null;
+      case 'messageSentNotification':
+        String sentByUser = methodCall.arguments["sentByUser"];
+        messageSentNotification?.call(sentByUser);
         return null;
       default:
         throw MissingPluginException('notImplemented');
