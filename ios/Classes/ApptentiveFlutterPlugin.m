@@ -73,16 +73,26 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 @end
 
-@implementation ApptentiveFlutterPlugin {
-  FlutterMethodChannel* channel;
+@interface ApptentiveFlutterPlugin () {
+  @property (strong, nonatomic) FlutterMethodChannel* channel;
 }
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-  channel = [FlutterMethodChannel
+  FlutterMethodChannel *channel = [FlutterMethodChannel
       methodChannelWithName:@"apptentive_flutter"
             binaryMessenger:[registrar messenger]];
-  ApptentiveFlutterPlugin* instance = [[ApptentiveFlutterPlugin alloc] init];
+  ApptentiveFlutterPlugin* instance = [[ApptentiveFlutterPlugin alloc] initWithChannel:channel];
   [registrar addMethodCallDelegate:instance channel:channel];
+}
+
+- (instancetype)initWithChannel:(FlutterMethodChannel *channel) {
+  self = [super init];
+
+  if (self) {
+    _channel = channel;
+  }
+
+  return self;
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -244,7 +254,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (void)messageCenterUnreadCountChangedNotification:(NSNotification *)notification {
   NSInteger count = [notification.userInfo[@"count"] intValue];
-  [self->channel invokeMethod:@"messageCenterUnreadCountChanged"
+  [self.channel invokeMethod:@"messageCenterUnreadCountChanged"
         arguments:@{
           @"count" : count,
         }
@@ -253,7 +263,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (void)surveyShownNotification:(NSNotification *)notification {
   NSString apptentiveSurveyIDKey = notification.object;
-  [self->channel invokeMethod:@"surveyShown"
+  [self.channel invokeMethod:@"surveyShown"
         arguments:@{
           @"apptentiveSurveyIDKey" : apptentiveSurveyIDKey,
         }
@@ -262,7 +272,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (void)surveySentNotification:(NSNotification *)notification {
   NSString apptentiveSurveyIDKey = notification.object;
-  [self->channel invokeMethod:@"surveySent"
+  [self.channel invokeMethod:@"surveySent"
         arguments:@{
           @"apptentiveSurveyIDKey" : apptentiveSurveyIDKey,
         }
@@ -270,12 +280,12 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 }
 
 - (void)surveyCancelledNotification:(NSNotification *)notification {
-  [self->channel invokeMethod:@"surveyCancelled"];
+  [self.channel invokeMethod:@"surveyCancelled"];
 }
 
 - (void)messageSentNotification:(NSNotification *)notification {
   NSString sentByUser = notification.userInfo[@"sentByUser"];
-  [self->channel invokeMethod:@"messageSent"
+  [self.channel invokeMethod:@"messageSent"
         arguments:@{
           @"sentByUser" : sentByUser,
         }
