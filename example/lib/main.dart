@@ -45,6 +45,16 @@ class _MyAppState extends State<MyApp> {
     );
     bool successful = await ApptentiveFlutter.register(configuration);
 
+    // Set callback/notification functions?
+    if (successful) {
+      ApptentiveFlutter.surveyFinishedCallback = (bool completed) {
+        print("Survey Finished?: ${completed}");
+      };
+      ApptentiveFlutter.surveyShownNotification = (String apptentiveSurveyIDKey) {
+        print("Survey Shown: " + apptentiveSurveyIDKey);
+      };
+    }
+
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.

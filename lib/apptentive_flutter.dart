@@ -51,7 +51,7 @@ class ApptentiveFlutter {
       ..setMethodCallHandler(_nativeCallback);
 
   static SurveyFinishedCallback? surveyFinishedCallback;
-  static AuthenticationFailedCallback? authenticationFailedCallback
+  static AuthenticationFailedCallback? authenticationFailedCallback;
   static ApptentiveMessageCenterUnreadCountChangedNotification? messageCenterUnreadCountChangedNotification;
   static ApptentiveSurveyShownNotification? surveyShownNotification;
   static ApptentiveSurveySentNotification? surveySentNotification;
