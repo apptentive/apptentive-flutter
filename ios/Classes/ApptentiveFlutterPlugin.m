@@ -73,6 +73,12 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 @end
 
+@interface ApptentiveFlutterPlugin ()
+
+@property (strong, nonatomic) FlutterMethodChannel* channel;
+
+@end
+
 @implementation ApptentiveFlutterPlugin
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
@@ -131,7 +137,6 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
   // Set notification listeners
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageCenterUnreadCountChangedNotification:) name:ApptentiveMessageCenterUnreadCountChangedNotification object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveyShownNotification:) name:ApptentiveSurveyShownNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveySentNotification:) name:ApptentiveSurveySentNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveyCancelledNotification:) name:ApptentiveSurveyCancelledNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageSentNotification:) name:ApptentiveMessageSentNotification object:nil];
@@ -251,39 +256,32 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 // Notification Functions
 
 - (void)messageCenterUnreadCountChangedNotification:(NSNotification *)notification {
-  NSInteger count = [notification.userInfo[@"count"] intValue];
-  [self.channel invokeMethod:@"messageCenterUnreadCountChanged"
+  [self.channel invokeMethod:@"onUnreadMessageCountChanged"
         arguments:@{
-          @"count" : count,
-        }
-  ];
-}
-
-- (void)surveyShownNotification:(NSNotification *)notification {
-  NSString apptentiveSurveyIDKey = notification.object;
-  [self.channel invokeMethod:@"surveyShown"
-        arguments:@{
-          @"apptentiveSurveyIDKey" : apptentiveSurveyIDKey,
+          @"unreadMessages" : fromNullable(notification.userInfo[@"count"]),
         }
   ];
 }
 
 - (void)surveySentNotification:(NSNotification *)notification {
-  NSString apptentiveSurveyIDKey = notification.object;
-  [self.channel invokeMethod:@"surveySent"
+  [self.channel invokeMethod:@"onSurveyFinished"
         arguments:@{
-          @"apptentiveSurveyIDKey" : apptentiveSurveyIDKey,
+          @"completed" : @YES,
         }
   ];
 }
 
 - (void)surveyCancelledNotification:(NSNotification *)notification {
-  [self.channel invokeMethod:@"surveyCancelled"];
+    [self.channel invokeMethod:@"onSurveyFinished"
+          arguments:@{
+            @"completed" : @NO,
+          }
+    ];
 }
 
 - (void)messageSentNotification:(NSNotification *)notification {
   NSString sentByUser = notification.userInfo[@"sentByUser"];
-  [self.channel invokeMethod:@"messageSent"
+  [self.channel invokeMethod:@"onMessageSent"
         arguments:@{
           @"sentByUser" : sentByUser,
         }
