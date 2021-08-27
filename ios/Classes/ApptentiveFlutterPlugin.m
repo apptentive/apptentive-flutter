@@ -1,6 +1,6 @@
 #import "ApptentiveFlutterPlugin.h"
 
-#import <Apptentive/Apptentive.h>
+#import "ApptentiveMain.h"
 
 inline static _Nullable id fromNullable(_Nullable id value) {
   return [value isKindOfClass:[NSNull class]] ? nil : value;
@@ -244,7 +244,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (void)messageCenterUnreadCountChangedNotification:(NSNotification *)notification {
   NSInteger count = [notification.userInfo[@"count"] intValue];
-  [self->channel invokeMethod:@"messageCenterUnreadCountChangedNotification"
+  [self->channel invokeMethod:@"messageCenterUnreadCountChanged"
         arguments:@{
           @"count" : count,
         }
@@ -253,7 +253,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (void)surveyShownNotification:(NSNotification *)notification {
   NSString apptentiveSurveyIDKey = notification.object;
-  [self->channel invokeMethod:@"surveyShownNotification"
+  [self->channel invokeMethod:@"surveyShown"
         arguments:@{
           @"apptentiveSurveyIDKey" : apptentiveSurveyIDKey,
         }
@@ -262,7 +262,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (void)surveySentNotification:(NSNotification *)notification {
   NSString apptentiveSurveyIDKey = notification.object;
-  [self->channel invokeMethod:@"surveySentNotification"
+  [self->channel invokeMethod:@"surveySent"
         arguments:@{
           @"apptentiveSurveyIDKey" : apptentiveSurveyIDKey,
         }
@@ -270,12 +270,12 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 }
 
 - (void)surveyCancelledNotification:(NSNotification *)notification {
-  [self->channel invokeMethod:@"surveyCancelledNotification"];
+  [self->channel invokeMethod:@"surveyCancelled"];
 }
 
 - (void)messageSentNotification:(NSNotification *)notification {
   NSString sentByUser = notification.userInfo[@"sentByUser"];
-  [self->channel invokeMethod:@"messageSentNotification"
+  [self->channel invokeMethod:@"messageSent"
         arguments:@{
           @"sentByUser" : sentByUser,
         }

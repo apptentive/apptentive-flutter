@@ -40,11 +40,11 @@ enum PushProvider { apptentive, amazon, parse, urban_airship }
 typedef SurveyFinishedCallback = void Function(bool completed);
 typedef AuthenticationFailedCallback = void Function(String reason);
 // iOS Notifications
-typedef ApptentiveMessageCenterUnreadCountChangedNotification = void Function(int count);
-typedef ApptentiveSurveyShownNotification = void Function(String apptentiveSurveyIDKey);
-typedef ApptentiveSurveySentNotification = void Function(String apptentiveSurveyIDKey);
-typedef ApptentiveSurveyCancelledNotification = void Function();
-typedef ApptentiveMessageSentNotification = void Function(String sentByUser);
+typedef MessageCenterUnreadCountChangedNotification = void Function(int count);
+typedef SurveyShownNotification = void Function(String apptentiveSurveyIDKey);
+typedef SurveySentNotification = void Function(String apptentiveSurveyIDKey);
+typedef SurveyCancelledNotification = void Function();
+typedef MessageSentNotification = void Function(String sentByUser);
 
 class ApptentiveFlutter {
   static final MethodChannel _channel = const MethodChannel('apptentive_flutter')
@@ -52,11 +52,11 @@ class ApptentiveFlutter {
 
   static SurveyFinishedCallback? surveyFinishedCallback;
   static AuthenticationFailedCallback? authenticationFailedCallback;
-  static ApptentiveMessageCenterUnreadCountChangedNotification? messageCenterUnreadCountChangedNotification;
-  static ApptentiveSurveyShownNotification? surveyShownNotification;
-  static ApptentiveSurveySentNotification? surveySentNotification;
-  static ApptentiveSurveyCancelledNotification? surveyCancelledNotification;
-  static ApptentiveMessageSentNotification? messageSentNotification;
+  static MessageCenterUnreadCountChangedNotification? messageCenterUnreadCountChangedNotification;
+  static SurveyShownNotification? surveyShownNotification;
+  static SurveySentNotification? surveySentNotification;
+  static SurveyCancelledNotification? surveyCancelledNotification;
+  static MessageSentNotification? messageSentNotification;
 
   static Future<dynamic> _nativeCallback(MethodCall methodCall) async {
     switch (methodCall.method) {
@@ -68,22 +68,22 @@ class ApptentiveFlutter {
         String reason = methodCall.arguments["reason"];
         authenticationFailedCallback?.call(reason);
         return null;
-      case 'messageCenterUnreadCountChangedNotification':
+      case 'messageCenterUnreadCountChanged':
         int count = methodCall.arguments["count"];
         messageCenterUnreadCountChangedNotification?.call(count);
         return null;
-      case 'surveyShownNotification':
+      case 'surveyShown':
         String apptentiveSurveyIDKey = methodCall.arguments["apptentiveSurveyIDKey"];
         surveyShownNotification?.call(apptentiveSurveyIDKey);
         return null;
-      case 'surveySentNotification':
+      case 'surveySent':
         String apptentiveSurveyIDKey = methodCall.arguments["apptentiveSurveyIDKey"];
         surveySentNotification?.call(apptentiveSurveyIDKey);
         return null;
-      case 'surveyCancelledNotification':
+      case 'surveyCancelled':
         surveyCancelledNotification?.call();
         return null;
-      case 'messageSentNotification':
+      case 'messageSent':
         String sentByUser = methodCall.arguments["sentByUser"];
         messageSentNotification?.call(sentByUser);
         return null;

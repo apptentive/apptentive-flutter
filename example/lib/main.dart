@@ -45,13 +45,28 @@ class _MyAppState extends State<MyApp> {
     );
     bool successful = await ApptentiveFlutter.register(configuration);
 
-    // Set callback/notification functions?
+    // Set callback/notification functions
     if (successful) {
       ApptentiveFlutter.surveyFinishedCallback = (bool completed) {
         print("Survey Finished?: ${completed}");
       };
+      ApptentiveFlutter.authenticationFailedCallback = (String reason) {
+        print("Authentication failed because due to following reason: ${reason}");
+      };
+      ApptentiveFlutter.messageCenterUnreadCountChangedNotification = (int count) {
+        print("Message Center unread message count is now: ${count}");
+      };
       ApptentiveFlutter.surveyShownNotification = (String apptentiveSurveyIDKey) {
         print("Survey Shown: " + apptentiveSurveyIDKey);
+      };
+      ApptentiveFlutter.surveySentNotification = (String apptentiveSurveyIDKey) {
+        print("Survey Sent: " + apptentiveSurveyIDKey);
+      };
+      ApptentiveFlutter.surveyCancelledNotification = () {
+        print("Survey Cancelled");
+      };
+      ApptentiveFlutter.messageSentNotification = (String sentByUser) {
+        print("Message sent by user: " + sentByUser);
       };
     }
 
