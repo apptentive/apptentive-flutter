@@ -292,6 +292,9 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (void)messageSentNotification:(NSNotification *)notification {
   NSString * sentByUser = notification.userInfo[@"sentByUser"];
+    if(!sentByUser) {
+        sentByUser = @"";
+    }
   [self.channel invokeMethod:@"onMessageSent"
         arguments:@{
           @"sentByUser" : sentByUser,

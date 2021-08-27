@@ -39,7 +39,6 @@ enum PushProvider { apptentive, amazon, parse, urban_airship }
 typedef SurveyFinishedCallback = void Function(bool completed);
 typedef AuthenticationFailedCallback = void Function(String reason, String errorMessage);
 typedef MessageCenterUnreadCountChangedNotification = void Function(int count);
-typedef SurveyShownNotification = void Function(String apptentiveSurveyIDKey);
 typedef SurveySentNotification = void Function(String apptentiveSurveyIDKey);
 typedef SurveyCancelledNotification = void Function();
 typedef MessageSentNotification = void Function(String sentByUser);
@@ -51,7 +50,6 @@ class ApptentiveFlutter {
   static SurveyFinishedCallback? surveyFinishedCallback;
   static AuthenticationFailedCallback? authenticationFailedCallback;
   static MessageCenterUnreadCountChangedNotification? messageCenterUnreadCountChangedNotification;
-  static SurveyShownNotification? surveyShownNotification;
   static SurveySentNotification? surveySentNotification;
   static SurveyCancelledNotification? surveyCancelledNotification;
   static MessageSentNotification? messageSentNotification;
@@ -74,18 +72,7 @@ class ApptentiveFlutter {
         int count = methodCall.arguments["count"];
         messageCenterUnreadCountChangedNotification?.call(count);
         return null;
-      case 'surveyShown':
-        String apptentiveSurveyIDKey = methodCall.arguments["apptentiveSurveyIDKey"];
-        surveyShownNotification?.call(apptentiveSurveyIDKey);
-        return null;
-      case 'surveySent':
-        String apptentiveSurveyIDKey = methodCall.arguments["apptentiveSurveyIDKey"];
-        surveySentNotification?.call(apptentiveSurveyIDKey);
-        return null;
-      case 'surveyCancelled':
-        surveyCancelledNotification?.call();
-        return null;
-      case 'messageSent':
+      case 'onMessageSent':
         String sentByUser = methodCall.arguments["sentByUser"];
         messageSentNotification?.call(sentByUser);
         return null;
