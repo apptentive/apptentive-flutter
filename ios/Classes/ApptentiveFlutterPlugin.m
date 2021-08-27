@@ -141,6 +141,17 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveyCancelledNotification:) name:ApptentiveSurveyCancelledNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageSentNotification:) name:ApptentiveMessageSentNotification object:nil];
 
+  //[Apptentive.shared setAuthenticationFailureCallback:@selector(onAuthenticationFailed)];
+
+    [Apptentive.shared setAuthenticationFailureCallback:^void (ApptentiveAuthenticationFailureReason reason, NSString *errorMessage) {
+      [self.channel invokeMethod:@"onAuthenticationFailed"
+            arguments:@{
+              @"reason": fromNullable(@(reason)),
+              @"errorMessage": fromNullable(errorMessage),
+            }
+      ];
+    }];
+
   result(@YES);
 }
 
@@ -280,10 +291,19 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 }
 
 - (void)messageSentNotification:(NSNotification *)notification {
-  NSString sentByUser = notification.userInfo[@"sentByUser"];
+  NSString * sentByUser = notification.userInfo[@"sentByUser"];
   [self.channel invokeMethod:@"onMessageSent"
         arguments:@{
           @"sentByUser" : sentByUser,
+        }
+  ];
+}
+
+- (void)onAuthenticationFailed:(NSString *)reason errorMessage:(NSString *)errorMessage {
+  [self.channel invokeMethod:@"onAuthenticationFailed"
+        arguments:@{
+          @"reason": reason,
+          @"errorMessage": errorMessage,
         }
   ];
 }

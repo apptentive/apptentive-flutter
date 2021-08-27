@@ -36,10 +36,8 @@ class ApptentiveConfiguration {
 
 enum PushProvider { apptentive, amazon, parse, urban_airship }
 
-// Android Callbacks
 typedef SurveyFinishedCallback = void Function(bool completed);
-typedef AuthenticationFailedCallback = void Function(String reason);
-// iOS Notifications
+typedef AuthenticationFailedCallback = void Function(String reason, String errorMessage);
 typedef MessageCenterUnreadCountChangedNotification = void Function(int count);
 typedef SurveyShownNotification = void Function(String apptentiveSurveyIDKey);
 typedef SurveySentNotification = void Function(String apptentiveSurveyIDKey);
@@ -66,7 +64,11 @@ class ApptentiveFlutter {
         return null;
       case 'onAuthenticationFailed':
         String reason = methodCall.arguments["reason"];
-        authenticationFailedCallback?.call(reason);
+        String errorMessage = methodCall.arguments["errorMessage"];
+        if (errorMessage == null) {
+          errorMessage = "";
+        }
+        authenticationFailedCallback?.call(reason, errorMessage);
         return null;
       case 'messageCenterUnreadCountChanged':
         int count = methodCall.arguments["count"];
