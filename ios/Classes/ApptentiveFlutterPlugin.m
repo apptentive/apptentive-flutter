@@ -73,9 +73,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 @end
 
-@interface ApptentiveFlutterPlugin () {
-  @property (strong, nonatomic) FlutterMethodChannel* channel;
-}
+@implementation ApptentiveFlutterPlugin
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   FlutterMethodChannel *channel = [FlutterMethodChannel
@@ -85,7 +83,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   [registrar addMethodCallDelegate:instance channel:channel];
 }
 
-- (instancetype)initWithChannel:(FlutterMethodChannel *channel) {
+- (instancetype)initWithChannel:(FlutterMethodChannel *)channel {
   self = [super init];
 
   if (self) {
