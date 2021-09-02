@@ -1,6 +1,6 @@
 #import "ApptentiveFlutterPlugin.h"
 
-#import <Apptentive/Apptentive.h>
+#import "ApptentiveMain.h"
 
 inline static _Nullable id fromNullable(_Nullable id value) {
   return [value isKindOfClass:[NSNull class]] ? nil : value;
@@ -27,7 +27,7 @@ static BOOL parseLogLevel(NSString *value, ApptentiveLogLevel *outResult) {
     if (outResult) *outResult = ApptentiveLogLevelError;
     return YES;
   }
-  
+
   return NO;
 }
 
@@ -35,7 +35,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   NSString *apptentiveKey = info[@"key"];
   NSString *apptentiveSignature = info[@"signature"];
   ApptentiveConfiguration *configuration = [ApptentiveConfiguration configurationWithApptentiveKey:apptentiveKey apptentiveSignature:apptentiveSignature];
-  
+
   // log level
   ApptentiveLogLevel logLevel;
   NSString *logLevelValue = fromNullable(info[@"log_level"]);
@@ -46,13 +46,13 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
       NSLog(@"Unknown log level: %@", logLevelValue);
     }
   }
-  
+
   // sanitize log messages
   id shouldSanitizeLogMessages = fromNullable(info[@"should_sanitize_log_messages"]);
   if (shouldSanitizeLogMessages != nil) {
     configuration.shouldSanitizeLogMessages = [shouldSanitizeLogMessages boolValue];
   }
-  
+
   // FIXME: parse additional fields
   return configuration;
 }
@@ -73,13 +73,30 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 @end
 
+@interface ApptentiveFlutterPlugin ()
+
+@property (strong, nonatomic) FlutterMethodChannel* channel;
+
+@end
+
 @implementation ApptentiveFlutterPlugin
+
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-  FlutterMethodChannel* channel = [FlutterMethodChannel
+  FlutterMethodChannel *channel = [FlutterMethodChannel
       methodChannelWithName:@"apptentive_flutter"
             binaryMessenger:[registrar messenger]];
-  ApptentiveFlutterPlugin* instance = [[ApptentiveFlutterPlugin alloc] init];
+  ApptentiveFlutterPlugin* instance = [[ApptentiveFlutterPlugin alloc] initWithChannel:channel];
   [registrar addMethodCallDelegate:instance channel:channel];
+}
+
+- (instancetype)initWithChannel:(FlutterMethodChannel *)channel {
+  self = [super init];
+
+  if (self) {
+    _channel = channel;
+  }
+
+  return self;
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -117,6 +134,22 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 - (void)handleRegisterCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   ApptentiveConfiguration *configuration = unpackConfiguration(call.arguments[@"configuration"]);
   [Apptentive registerWithConfiguration:configuration];
+
+  // Set notification listeners
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageCenterUnreadCountChangedNotification:) name:ApptentiveMessageCenterUnreadCountChangedNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveySentNotification:) name:ApptentiveSurveySentNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveyCancelledNotification:) name:ApptentiveSurveyCancelledNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageSentNotification:) name:ApptentiveMessageSentNotification object:nil];
+
+    [Apptentive.shared setAuthenticationFailureCallback:^void (ApptentiveAuthenticationFailureReason reason, NSString *errorMessage) {
+      [self.channel invokeMethod:@"onAuthenticationFailed"
+            arguments:@{
+              @"reason": fromNullable(@(reason)),
+              @"errorMessage": fromNullable(errorMessage),
+            }
+      ];
+    }];
+
   result(@YES);
 }
 
@@ -227,6 +260,53 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (void)handleSetPushNotificationIntegrationCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   result(FlutterMethodNotImplemented);
+}
+
+// Notification Functions
+
+- (void)messageCenterUnreadCountChangedNotification:(NSNotification *)notification {
+  [self.channel invokeMethod:@"onUnreadMessageCountChanged"
+        arguments:@{
+          @"unreadMessages" : fromNullable(notification.userInfo[@"count"]),
+        }
+  ];
+}
+
+- (void)surveySentNotification:(NSNotification *)notification {
+  [self.channel invokeMethod:@"onSurveyFinished"
+        arguments:@{
+          @"completed" : @YES,
+        }
+  ];
+}
+
+- (void)surveyCancelledNotification:(NSNotification *)notification {
+    [self.channel invokeMethod:@"onSurveyFinished"
+          arguments:@{
+            @"completed" : @NO,
+          }
+    ];
+}
+
+- (void)messageSentNotification:(NSNotification *)notification {
+  NSString * sentByUser = notification.userInfo[@"sentByUser"];
+    if(!sentByUser) {
+        sentByUser = @"";
+    }
+  [self.channel invokeMethod:@"onMessageSent"
+        arguments:@{
+          @"sentByUser" : sentByUser,
+        }
+  ];
+}
+
+- (void)onAuthenticationFailed:(NSString *)reason errorMessage:(NSString *)errorMessage {
+  [self.channel invokeMethod:@"onAuthenticationFailed"
+        arguments:@{
+          @"reason": reason,
+          @"errorMessage": errorMessage,
+        }
+  ];
 }
 
 @end
