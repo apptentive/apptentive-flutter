@@ -37,7 +37,9 @@ class ApptentiveConfiguration {
 enum PushProvider { apptentive, amazon, parse, urban_airship }
 
 typedef SurveyFinishedCallback = void Function(bool completed);
-typedef AuthenticationFailedCallback = void Function(String reason);
+typedef AuthenticationFailedCallback = void Function(String reason, String errorMessage);
+typedef MessageCenterUnreadCountChangedNotification = void Function(int count);
+typedef MessageSentNotification = void Function(String sentByUser);
 
 class ApptentiveFlutter {
   static final MethodChannel _channel = const MethodChannel('apptentive_flutter')
@@ -45,6 +47,8 @@ class ApptentiveFlutter {
 
   static SurveyFinishedCallback? surveyFinishedCallback;
   static AuthenticationFailedCallback? authenticationFailedCallback;
+  static MessageCenterUnreadCountChangedNotification? messageCenterUnreadCountChangedNotification;
+  static MessageSentNotification? messageSentNotification;
 
   static Future<dynamic> _nativeCallback(MethodCall methodCall) async {
     switch (methodCall.method) {
@@ -54,7 +58,19 @@ class ApptentiveFlutter {
         return null;
       case 'onAuthenticationFailed':
         String reason = methodCall.arguments["reason"];
-        authenticationFailedCallback?.call(reason);
+        String errorMessage = methodCall.arguments["errorMessage"];
+        if (errorMessage == null) {
+          errorMessage = "";
+        }
+        authenticationFailedCallback?.call(reason, errorMessage);
+        return null;
+      case 'messageCenterUnreadCountChanged':
+        int count = methodCall.arguments["count"];
+        messageCenterUnreadCountChangedNotification?.call(count);
+        return null;
+      case 'onMessageSent':
+        String sentByUser = methodCall.arguments["sentByUser"];
+        messageSentNotification?.call(sentByUser);
         return null;
       default:
         throw MissingPluginException('notImplemented');
