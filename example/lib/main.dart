@@ -45,6 +45,22 @@ class _MyAppState extends State<MyApp> {
     );
     bool successful = await ApptentiveFlutter.register(configuration);
 
+    // Set callback/notification functions
+    if (successful) {
+      ApptentiveFlutter.surveyFinishedCallback = (bool completed) {
+        print("Survey Finished?: ${completed}");
+      };
+      ApptentiveFlutter.authenticationFailedCallback = (String reason, String errorMessage) {
+        print("Authentication failed because due to following reason: ${reason} Error message: ${errorMessage}");
+      };
+      ApptentiveFlutter.messageCenterUnreadCountChangedNotification = (int count) {
+        print("Message Center unread message count is now: ${count}");
+      };
+      ApptentiveFlutter.messageSentNotification = (String sentByUser) {
+        print("Message sent by user: " + sentByUser);
+      };
+    }
+
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
@@ -211,6 +227,31 @@ class _MyAppState extends State<MyApp> {
 
   Widget editText({required String hint, required AsyncValueSetter<String> onSubmit, required String buttonText}) {
     var controller = TextEditingController();
+
+    return Row(
+      children: [
+        Flexible(
+          child: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: hint
+            ),
+          ),
+        ),
+        OutlinedButton(
+          onPressed: () {
+            onSubmit(controller.text);
+          },
+          child: Text("${buttonText}")
+        ),
+      ],
+    );
+  }
+
+  Widget doubleEditText({required String hint, required String hint2, required AsyncValueSetter<Map<String,String>> onSubmit, required String buttonText}) {
+    var controller = TextEditingController();
+    var controller2 = TextEditingController();
 
     return Row(
       children: [
