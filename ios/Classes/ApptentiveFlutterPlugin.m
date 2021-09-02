@@ -141,8 +141,6 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveyCancelledNotification:) name:ApptentiveSurveyCancelledNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageSentNotification:) name:ApptentiveMessageSentNotification object:nil];
 
-  //[Apptentive.shared setAuthenticationFailureCallback:@selector(onAuthenticationFailed)];
-
     [Apptentive.shared setAuthenticationFailureCallback:^void (ApptentiveAuthenticationFailureReason reason, NSString *errorMessage) {
       [self.channel invokeMethod:@"onAuthenticationFailed"
             arguments:@{
