@@ -39,8 +39,6 @@ enum PushProvider { apptentive, amazon, parse, urban_airship }
 typedef SurveyFinishedCallback = void Function(bool completed);
 typedef AuthenticationFailedCallback = void Function(String reason, String errorMessage);
 typedef MessageCenterUnreadCountChangedNotification = void Function(int count);
-typedef SurveySentNotification = void Function(String apptentiveSurveyIDKey);
-typedef SurveyCancelledNotification = void Function();
 typedef MessageSentNotification = void Function(String sentByUser);
 
 class ApptentiveFlutter {
@@ -50,8 +48,6 @@ class ApptentiveFlutter {
   static SurveyFinishedCallback? surveyFinishedCallback;
   static AuthenticationFailedCallback? authenticationFailedCallback;
   static MessageCenterUnreadCountChangedNotification? messageCenterUnreadCountChangedNotification;
-  static SurveySentNotification? surveySentNotification;
-  static SurveyCancelledNotification? surveyCancelledNotification;
   static MessageSentNotification? messageSentNotification;
 
   static Future<dynamic> _nativeCallback(MethodCall methodCall) async {
