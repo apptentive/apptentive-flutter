@@ -8,13 +8,9 @@ The Apptentive SDK is the best way to engage your mobile customers in your Flutt
 
 #### [iOS Interface Customization](https://learn.apptentive.com/knowledge-base/interface-customization-ios/)
 
-#### [Apptentive Android SDK API Javadoc](https://learn.apptentive.com/docs/android/api/index.html)
-
-#### [Apptentive iOS SDK API Javadoc](https://learn.apptentive.com/docs/ios/api/index.html)
-
 #### Reporting Bugs
 
-We encourage you to help us find and fix bugs. If you find a bug, please fill in the contributor agreement, then open a [github issue](https://github.com/apptentive-engineering/apptentive-flutter/issues).
+We encourage you to help us find and fix bugs. If you find a bug, please fill in the contributor agreement, then open a [github issue](https://github.com/apptentive/apptentive-flutter/issues).
 If it is an urgent bug, please contact support@apptentive.com.
 
 #### Contributing
