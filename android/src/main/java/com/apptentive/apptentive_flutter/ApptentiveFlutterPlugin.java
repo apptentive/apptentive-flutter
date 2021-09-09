@@ -38,14 +38,10 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
   /// when the Flutter Engine is detached from the Activity
   private MethodChannel channel;
 
-  /**
-   * Current application object
-   */
+  // Current application object
   private @Nullable Application application;
 
-  /**
-  * Current Activity object
-  */
+  // Current Activity object
   private @Nullable Activity activity;
 
   @Override

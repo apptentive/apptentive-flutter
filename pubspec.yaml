@@ -1,6 +1,6 @@
 name: apptentive_flutter
 description: Apptentive SDK for Flutter
-version: 0.0.1
+version: 5.7.1
 homepage: https://github.com/apptentive-engineering/apptentive-flutter
 
 environment:
