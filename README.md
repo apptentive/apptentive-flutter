@@ -1,15 +1,27 @@
-# apptentive_flutter
+# Apptentive SDK for Flutter
 
-Apptentive SDK for Flutter
+The Apptentive SDK is the best way to engage your mobile customers in your Flutter app. Use it to learn about how your customers use your app, to talk to them at the right time, and in the right way.
 
-## Getting Started
+#### To get started, read our [Integration Guide](https://learn.apptentive.com/knowledge-base/apptentive-sdk-flutter-plugin-guide/)
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+#### [Android Interface Customization](https://learn.apptentive.com/knowledge-base/android-interface-customization/)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+#### [iOS Interface Customization](https://learn.apptentive.com/knowledge-base/interface-customization-ios/)
 
+#### [Apptentive Android SDK API Javadoc](https://learn.apptentive.com/docs/android/api/index.html)
+
+#### [Apptentive iOS SDK API Javadoc](https://learn.apptentive.com/docs/ios/api/index.html)
+
+#### Reporting Bugs
+
+We encourage you to help us find and fix bugs. If you find a bug, please fill in the contributor agreement, then open a [github issue](https://github.com/apptentive-engineering/apptentive-flutter/issues).
+If it is an urgent bug, please contact support@apptentive.com.
+
+#### Contributing
+
+We appreciate contributions to make this SDK better. If you have an improvement or bug fix, please [read this](CONTRIBUTING.md).
+
+#### Notes
+
+* Make sure you have latest version of our SDK. We're always adding new features!
+* Make sure to follow the repo to get updates about features and bug fixes.
