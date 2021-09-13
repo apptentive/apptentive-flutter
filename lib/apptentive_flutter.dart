@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-// FIXME: java-doc comment
+// Sets which level of logs will be printed by the Apptentive SDK
 enum LogLevel { verbose, debug, info, warn, error }
 
-// FIXME: java-doc comment
+// Apptentive Terms and Conditions used in the Apptentive Configuration
 class ApptentiveTermsAndConditions {
   final String? bodyText;
   final String? linkText;
@@ -14,7 +14,7 @@ class ApptentiveTermsAndConditions {
   ApptentiveTermsAndConditions({this.bodyText, this.linkText, this.linkURL});
 }
 
-// FIXME: java-doc comment
+// Configuration for registering the Apptentive SDK
 class ApptentiveConfiguration {
   final String apptentiveKey;
   final String apptentiveSignature;
