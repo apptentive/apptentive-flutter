@@ -28,3 +28,8 @@ android {
         minSdkVersion 16
     }
 }
+
+dependencies {
+    implementation 'com.apptentive:apptentive-android:5.7.1'
+    testImplementation 'junit:junit:4.13.2'
+}
