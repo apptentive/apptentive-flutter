@@ -47,13 +47,41 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
     }
   }
 
-  // sanitize log messages
+  // Sanitize Log Messages
   id shouldSanitizeLogMessages = fromNullable(info[@"should_sanitize_log_messages"]);
   if (shouldSanitizeLogMessages != nil) {
     configuration.shouldSanitizeLogMessages = [shouldSanitizeLogMessages boolValue];
   }
 
-  // FIXME: parse additional fields
+  // Show Info Button
+  id shouldShowInfoButton = fromNullable(info[@"should_show_info_button"]);
+  if (shouldShowInfoButton != nil) {
+    configuration.showInfoButton = [shouldShowInfoButton boolValue];
+  }
+
+  // Enable Debug Log File
+  id enableDebugLogFile = fromNullable(info[@"enable_debug_log_file"]);
+  if (enableDebugLogFile != nil) {
+    configuration.enableDebugLogFile = [enableDebugLogFile boolValue];
+  }
+
+  // Gather Carrier Info
+  id gatherCarrierInfo = fromNullable(info[@"gather_carrier_info"]);
+  if (gatherCarrierInfo != nil) {
+    configuration.gatherCarrierInfo = [gatherCarrierInfo boolValue];
+  }
+
+  // Terms and conditions
+  id termsAndConditionsPacked = fromNullable(info[@"terms_and_conditions"]);
+  if (termsAndConditionsPacked != nil) {
+    // Unpack
+    NSString *bodyText = fromNullable(termsAndConditionsPacked[@"body_text"]);
+    NSString *linkText = fromNullable(termsAndConditionsPacked[@"link_text"]);
+    NSURL *linkUrl = fromNullable(termsAndConditionsPacked[@"link_url"]);
+    TermsAndConditions *termsAndConditions = [[TermsAndConditions alloc] initWithBodyText:bodyText linkText:linkText linkURL:linkUrl];
+    configuration.surveyTermsAndConditions = termsAndConditions;
+  }
+
   return configuration;
 }
 
