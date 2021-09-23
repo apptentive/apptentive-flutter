@@ -224,12 +224,22 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 }
 
 - (void)handleSetPersonNameCall:(FlutterMethodCall*)call result:(FlutterResult)result {
+  if (!isRegistered){
+    NSLog(@"Apptentive is not initialized, cannot set person name.", event);
+    result(@NO);
+    return;
+  }
   NSString *name = call.arguments[@"name"];
   [Apptentive.shared setPersonName:name];
   result(@YES);
 }
 
 - (void)handleSetPersonEmailCall:(FlutterMethodCall*)call result:(FlutterResult)result {
+  if (!isRegistered){
+    NSLog(@"Apptentive is not initialized, cannot set person email.");
+    result(@NO);
+    return;
+  }
   NSString *email = call.arguments[@"email"];
   [Apptentive.shared setPersonEmailAddress:email];
   result(@YES);
