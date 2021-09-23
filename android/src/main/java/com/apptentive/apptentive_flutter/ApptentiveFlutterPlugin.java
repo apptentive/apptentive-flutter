@@ -139,7 +139,7 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
 
   private void register(@NonNull MethodCall call, @NonNull Result result) {
     if (application == null) {
-      result.error(ERROR_CODE_NO_APPLICATION, "Unable to register Apptentive SDK", null); // TODO: provide a better error details
+      result.error(ERROR_CODE_NO_APPLICATION, "Unable to register Apptentive SDK, FlutterPluginBinding Application is null.", null);
       return;
     }
 
@@ -166,7 +166,7 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
     final Map<String, Object> customData = call.argument("custom_data");
 
     if (application == null) {
-      result.error(ERROR_CODE_NO_APPLICATION, "Unable to engage event: " + event, null); // TODO: provide a better error details
+      result.error(ERROR_CODE_NO_APPLICATION, "Unable to engage event: " + event + ", bound Application is null.", null);
       return;
     }
 
@@ -180,7 +180,7 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
 
   private void canShowInteraction(@NonNull MethodCall call, @NonNull final Result result) {
     if (application == null) {
-      result.error(ERROR_CODE_NO_APPLICATION, "Unable to check in interaction can be shown", null); // TODO: provide a better error details
+      result.error(ERROR_CODE_NO_APPLICATION, "Unable to check if interaction can be shown, bound Application is null.", null);
       return;
     }
 
@@ -195,7 +195,7 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
 
   private void showMessageCenter(@NonNull MethodCall call, @NonNull final Result result) {
     if (application == null) {
-      result.error(ERROR_CODE_NO_APPLICATION, "Unable to show message center", null); // TODO: provide a better error details
+      result.error(ERROR_CODE_NO_APPLICATION, "Unable to show message center, bound Application is null.", null);
       return;
     }
 
