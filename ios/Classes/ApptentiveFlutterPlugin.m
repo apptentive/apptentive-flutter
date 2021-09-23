@@ -169,21 +169,25 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveyCancelledNotification:) name:ApptentiveSurveyCancelledNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageSentNotification:) name:ApptentiveMessageSentNotification object:nil];
 
-    [Apptentive.shared setAuthenticationFailureCallback:^void (ApptentiveAuthenticationFailureReason reason, NSString *errorMessage) {
-      [self.channel invokeMethod:@"onAuthenticationFailed"
-            arguments:@{
-              @"reason": fromNullable(@(reason)),
-              @"errorMessage": fromNullable(errorMessage),
-            }
-      ];
-    }];
+  [Apptentive.shared setAuthenticationFailureCallback:^void (ApptentiveAuthenticationFailureReason reason, NSString *errorMessage) {
+    [self.channel invokeMethod:@"onAuthenticationFailed"
+          arguments:@{
+            @"reason": fromNullable(@(reason)),
+            @"errorMessage": fromNullable(errorMessage),
+          }
+    ];
+  }];
 
   result(@YES);
 }
 
 - (void)handleShowMessageCenterCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  // TODO: check if the instance is properly initialized
   NSDictionary *customData = call.arguments;
+  if (!isRegistered){
+    NSLog(@"Apptentive is not initialized, cannot show Message Center.");
+    result(@NO);
+    return;
+  }
   [Apptentive.shared presentMessageCenterFromViewController:nil
                                              withCustomData:customData
                                                  completion:^(BOOL presented) {
@@ -194,8 +198,11 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 - (void)handleEngageCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   NSString *event = call.arguments[@"event_name"];
   NSDictionary *customData = fromNullable(call.arguments[@"custom_data"]);
-
-  // TODO: check if the instance is properly initialized
+  if (!isRegistered){
+    NSLog(@"Apptentive is not initialized, cannot engage event: %@", event);
+    result(@NO);
+    return;
+  }
   [Apptentive.shared engage:event
              withCustomData:customData
          fromViewController:nil
@@ -206,20 +213,23 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (void)handleCanShowInteractionCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   NSString *event = call.arguments[@"event_name"];
+  if (!isRegistered){
+    NSLog(@"Apptentive is not initialized, cannot show any interactions for event: %@", event);
+    result(@NO);
+    return;
+  }
   [Apptentive.shared queryCanShowInteractionForEvent:event completion:^(BOOL canShowInteraction) {
       result([NSNumber numberWithBool:canShowInteraction]);
   }];
 }
 
 - (void)handleSetPersonNameCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  // TODO: check if the instance is properly initialized
   NSString *name = call.arguments[@"name"];
   [Apptentive.shared setPersonName:name];
   result(@YES);
 }
 
 - (void)handleSetPersonEmailCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  // TODO: check if the instance is properly initialized
   NSString *email = call.arguments[@"email"];
   [Apptentive.shared setPersonEmailAddress:email];
   result(@YES);
@@ -335,6 +345,10 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
           @"errorMessage": errorMessage,
         }
   ];
+}
+
+- (BOOL)isRegistered {
+  return Apptentive.shared.apptentiveKey != nil && Apptentive.shared.apptentiveSignature != nil;
 }
 
 @end
