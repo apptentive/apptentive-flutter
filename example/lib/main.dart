@@ -41,7 +41,14 @@ class _MyAppState extends State<MyApp> {
     final ApptentiveConfiguration configuration = ApptentiveConfiguration(
         apptentiveKey: apptentiveKey,
         apptentiveSignature: apptentiveSignature,
-        logLevel: LogLevel.verbose
+        logLevel: LogLevel.verbose,
+        shouldEncryptStorage: false,
+        shouldSanitizeLogMessages: false,
+        troubleshootingModeEnabled: true,
+        shouldCollectAndroidIdOnPreOreoTargets: true,
+        shouldShowInfoButton: true,
+        enableDebugLogFile: true,
+        gatherCarrierInfo: true
     );
     bool successful = await ApptentiveFlutter.register(configuration);
 
@@ -227,31 +234,6 @@ class _MyAppState extends State<MyApp> {
 
   Widget editText({required String hint, required AsyncValueSetter<String> onSubmit, required String buttonText}) {
     var controller = TextEditingController();
-
-    return Row(
-      children: [
-        Flexible(
-          child: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: hint
-            ),
-          ),
-        ),
-        OutlinedButton(
-          onPressed: () {
-            onSubmit(controller.text);
-          },
-          child: Text("${buttonText}")
-        ),
-      ],
-    );
-  }
-
-  Widget doubleEditText({required String hint, required String hint2, required AsyncValueSetter<Map<String,String>> onSubmit, required String buttonText}) {
-    var controller = TextEditingController();
-    var controller2 = TextEditingController();
 
     return Row(
       children: [
