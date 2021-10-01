@@ -32,13 +32,13 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
   private static final String ERROR_CODE_EXCEPTION = "300";
   private static final String ERROR_CODE_LOGIN_FAILED = "400";
 
-  /// The MethodChannel that will the communication between Flutter and native Android
+  /// The MethodChannel that will communicate between Flutter and native Android
   ///
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private MethodChannel channel;
 
-  // Current application object
+  // Current Application object
   private @Nullable Application application;
 
   // Current Activity object
@@ -139,7 +139,7 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
 
   private void register(@NonNull MethodCall call, @NonNull Result result) {
     if (application == null) {
-      result.error(ERROR_CODE_NO_APPLICATION, "Unable to register Apptentive SDK", null); // TODO: provide a better error details
+      result.error(ERROR_CODE_NO_APPLICATION, "Unable to register Apptentive SDK, FlutterPluginBinding Application is null.", null);
       return;
     }
 
@@ -166,7 +166,7 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
     final Map<String, Object> customData = call.argument("custom_data");
 
     if (application == null) {
-      result.error(ERROR_CODE_NO_APPLICATION, "Unable to engage event: " + event, null); // TODO: provide a better error details
+      result.error(ERROR_CODE_NO_APPLICATION, "Unable to engage event: " + event + ", bound Application is null.", null);
       return;
     }
 
@@ -180,7 +180,7 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
 
   private void canShowInteraction(@NonNull MethodCall call, @NonNull final Result result) {
     if (application == null) {
-      result.error(ERROR_CODE_NO_APPLICATION, "Unable to check in interaction can be shown", null); // TODO: provide a better error details
+      result.error(ERROR_CODE_NO_APPLICATION, "Unable to check if interaction can be shown, bound Application is null.", null);
       return;
     }
 
@@ -195,7 +195,7 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
 
   private void showMessageCenter(@NonNull MethodCall call, @NonNull final Result result) {
     if (application == null) {
-      result.error(ERROR_CODE_NO_APPLICATION, "Unable to show message center", null); // TODO: provide a better error details
+      result.error(ERROR_CODE_NO_APPLICATION, "Unable to show message center, bound Application is null.", null);
       return;
     }
 
@@ -211,12 +211,20 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
   }
 
   private void setPersonName(@NonNull MethodCall call, @NonNull final Result result) {
+    if (application == null) {
+      result.error(ERROR_CODE_NO_APPLICATION, "Unable to set person name, bound Application is null.", null);
+      return;
+    }
     final String name = call.argument("name");
     Apptentive.setPersonName(name);
     result.success(true);
   }
 
   private void setPersonEmail(@NonNull MethodCall call, @NonNull final Result result) {
+    if (application == null) {
+      result.error(ERROR_CODE_NO_APPLICATION, "Unable to set person email, bound Application is null.", null);
+      return;
+    }
     final String email = call.argument("email");
     Apptentive.setPersonEmail(email);
     result.success(true);
@@ -259,9 +267,9 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
       Apptentive.addCustomDeviceData(key, (Number) value);
     } else {
       result.error(
-              ERROR_CODE_ARGUMENT_ERROR,
-              "Unable to add custom device data for key '" + key + "': unexpected type " + value.getClass(),
-              null
+        ERROR_CODE_ARGUMENT_ERROR,
+        "Unable to add custom device data for key '" + key + "': unexpected type " + value.getClass(),
+        null
       );
       return;
     }
