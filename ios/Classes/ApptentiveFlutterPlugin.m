@@ -47,13 +47,41 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
     }
   }
 
-  // sanitize log messages
+  // Sanitize Log Messages
   id shouldSanitizeLogMessages = fromNullable(info[@"should_sanitize_log_messages"]);
   if (shouldSanitizeLogMessages != nil) {
     configuration.shouldSanitizeLogMessages = [shouldSanitizeLogMessages boolValue];
   }
 
-  // FIXME: parse additional fields
+  // Show Info Button
+  id shouldShowInfoButton = fromNullable(info[@"should_show_info_button"]);
+  if (shouldShowInfoButton != nil) {
+    configuration.showInfoButton = [shouldShowInfoButton boolValue];
+  }
+
+  // Enable Debug Log File
+  id enableDebugLogFile = fromNullable(info[@"enable_debug_log_file"]);
+  if (enableDebugLogFile != nil) {
+    configuration.enableDebugLogFile = [enableDebugLogFile boolValue];
+  }
+
+  // Gather Carrier Info
+  id gatherCarrierInfo = fromNullable(info[@"gather_carrier_info"]);
+  if (gatherCarrierInfo != nil) {
+    configuration.gatherCarrierInfo = [gatherCarrierInfo boolValue];
+  }
+
+  // Terms and conditions
+  id termsAndConditionsPacked = fromNullable(info[@"terms_and_conditions"]);
+  if (termsAndConditionsPacked != nil) {
+    // Unpack
+    NSString *bodyText = fromNullable(termsAndConditionsPacked[@"body_text"]);
+    NSString *linkText = fromNullable(termsAndConditionsPacked[@"link_text"]);
+    NSURL *linkUrl = fromNullable(termsAndConditionsPacked[@"link_url"]);
+    TermsAndConditions *termsAndConditions = [[TermsAndConditions alloc] initWithBodyText:bodyText linkText:linkText linkURL:linkUrl];
+    configuration.surveyTermsAndConditions = termsAndConditions;
+  }
+
   return configuration;
 }
 
@@ -141,21 +169,25 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveyCancelledNotification:) name:ApptentiveSurveyCancelledNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageSentNotification:) name:ApptentiveMessageSentNotification object:nil];
 
-    [Apptentive.shared setAuthenticationFailureCallback:^void (ApptentiveAuthenticationFailureReason reason, NSString *errorMessage) {
-      [self.channel invokeMethod:@"onAuthenticationFailed"
-            arguments:@{
-              @"reason": fromNullable(@(reason)),
-              @"errorMessage": fromNullable(errorMessage),
-            }
-      ];
-    }];
+  [Apptentive.shared setAuthenticationFailureCallback:^void (ApptentiveAuthenticationFailureReason reason, NSString *errorMessage) {
+    [self.channel invokeMethod:@"onAuthenticationFailed"
+          arguments:@{
+            @"reason": fromNullable(@(reason)),
+            @"errorMessage": fromNullable(errorMessage),
+          }
+    ];
+  }];
 
   result(@YES);
 }
 
 - (void)handleShowMessageCenterCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  // TODO: check if the instance is properly initialized
   NSDictionary *customData = call.arguments;
+  if (!isRegistered){
+    NSLog(@"Apptentive is not initialized, cannot show Message Center.");
+    result(@NO);
+    return;
+  }
   [Apptentive.shared presentMessageCenterFromViewController:nil
                                              withCustomData:customData
                                                  completion:^(BOOL presented) {
@@ -166,8 +198,11 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 - (void)handleEngageCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   NSString *event = call.arguments[@"event_name"];
   NSDictionary *customData = fromNullable(call.arguments[@"custom_data"]);
-
-  // TODO: check if the instance is properly initialized
+  if (!isRegistered){
+    NSLog(@"Apptentive is not initialized, cannot engage event: %@", event);
+    result(@NO);
+    return;
+  }
   [Apptentive.shared engage:event
              withCustomData:customData
          fromViewController:nil
@@ -178,20 +213,33 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (void)handleCanShowInteractionCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   NSString *event = call.arguments[@"event_name"];
+  if (!isRegistered){
+    NSLog(@"Apptentive is not initialized, cannot show any interactions for event: %@", event);
+    result(@NO);
+    return;
+  }
   [Apptentive.shared queryCanShowInteractionForEvent:event completion:^(BOOL canShowInteraction) {
       result([NSNumber numberWithBool:canShowInteraction]);
   }];
 }
 
 - (void)handleSetPersonNameCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  // TODO: check if the instance is properly initialized
+  if (!isRegistered){
+    NSLog(@"Apptentive is not initialized, cannot set person name.", event);
+    result(@NO);
+    return;
+  }
   NSString *name = call.arguments[@"name"];
   [Apptentive.shared setPersonName:name];
   result(@YES);
 }
 
 - (void)handleSetPersonEmailCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  // TODO: check if the instance is properly initialized
+  if (!isRegistered){
+    NSLog(@"Apptentive is not initialized, cannot set person email.");
+    result(@NO);
+    return;
+  }
   NSString *email = call.arguments[@"email"];
   [Apptentive.shared setPersonEmailAddress:email];
   result(@YES);
@@ -307,6 +355,10 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
           @"errorMessage": errorMessage,
         }
   ];
+}
+
+- (BOOL)isRegistered {
+  return Apptentive.shared.apptentiveKey != nil && Apptentive.shared.apptentiveSignature != nil;
 }
 
 @end
