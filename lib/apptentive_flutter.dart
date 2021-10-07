@@ -24,6 +24,9 @@ class ApptentiveConfiguration {
   final bool troubleshootingModeEnabled;
   final bool shouldCollectAndroidIdOnPreOreoTargets;
   final ApptentiveTermsAndConditions? surveyTermsAndConditions;
+  final bool shouldShowInfoButton;
+  final bool enableDebugLogFile;
+  final bool gatherCarrierInfo;
 
   ApptentiveConfiguration({required this.apptentiveKey, required this.apptentiveSignature,
     this.logLevel = LogLevel.info,
@@ -31,7 +34,10 @@ class ApptentiveConfiguration {
     this.shouldSanitizeLogMessages = true,
     this.troubleshootingModeEnabled = true,
     this.shouldCollectAndroidIdOnPreOreoTargets = true,
-    this.surveyTermsAndConditions});
+    this.surveyTermsAndConditions,
+    this.shouldShowInfoButton = true,
+    this.enableDebugLogFile = true,
+    this.gatherCarrierInfo = true});
 }
 
 enum PushProvider { apptentive, amazon, parse, urban_airship }
@@ -172,7 +178,10 @@ class ApptentiveFlutter {
       "should_sanitize_log_messages": configuration.shouldSanitizeLogMessages,
       "troubleshooting_mode_enabled": configuration.troubleshootingModeEnabled,
       "should_collect_android_id_on_pre_oreo_targets": configuration.shouldCollectAndroidIdOnPreOreoTargets,
-      "terms_and_conditions": _packTermsAndConditions(configuration.surveyTermsAndConditions)
+      "terms_and_conditions": _packTermsAndConditions(configuration.surveyTermsAndConditions),
+      "should_show_info_button": configuration.shouldShowInfoButton,
+      "enable_debug_log_file": configuration.enableDebugLogFile,
+      "gather_carrier_info": configuration.gatherCarrierInfo
     };
   }
 
