@@ -1,3 +1,6 @@
+# 2021-10-13 - v5.7.1-rc.3
+- Fixed iOS registration checks and logs
+
 # 2021-10-01 - v5.7.1-rc.2
 - Added additional iOS flags
 
