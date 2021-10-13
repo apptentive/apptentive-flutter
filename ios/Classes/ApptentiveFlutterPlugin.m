@@ -183,7 +183,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (void)handleShowMessageCenterCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   NSDictionary *customData = call.arguments;
-  if (!isRegistered){
+  if (![self isRegistered]){
     NSLog(@"Apptentive is not initialized, cannot show Message Center.");
     result(@NO);
     return;
@@ -198,7 +198,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 - (void)handleEngageCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   NSString *event = call.arguments[@"event_name"];
   NSDictionary *customData = fromNullable(call.arguments[@"custom_data"]);
-  if (!isRegistered){
+  if (![self isRegistered]){
     NSLog(@"Apptentive is not initialized, cannot engage event: %@", event);
     result(@NO);
     return;
@@ -213,7 +213,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (void)handleCanShowInteractionCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   NSString *event = call.arguments[@"event_name"];
-  if (!isRegistered){
+  if (![self isRegistered]){
     NSLog(@"Apptentive is not initialized, cannot show any interactions for event: %@", event);
     result(@NO);
     return;
@@ -224,8 +224,8 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 }
 
 - (void)handleSetPersonNameCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  if (!isRegistered){
-    NSLog(@"Apptentive is not initialized, cannot set person name.", event);
+  if (![self isRegistered]){
+    NSLog(@"Apptentive is not initialized, cannot set person name.");
     result(@NO);
     return;
   }
@@ -235,7 +235,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 }
 
 - (void)handleSetPersonEmailCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  if (!isRegistered){
+  if (![self isRegistered]){
     NSLog(@"Apptentive is not initialized, cannot set person email.");
     result(@NO);
     return;
