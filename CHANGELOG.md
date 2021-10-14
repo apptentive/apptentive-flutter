@@ -1,3 +1,7 @@
+# 2021-10-14 - v5.7.1-rc.4
+- Added distribution information
+- Fixed Android log level bug
+
 # 2021-10-13 - v5.7.1-rc.3
 - Fixed iOS registration checks and logs
 

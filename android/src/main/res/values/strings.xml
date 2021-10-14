@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="apptentive_distribution">Flutter</string>
-    <string name="apptentive_distribution_version">5.7.1-rc.3</string>
+    <string name="apptentive_distribution_version">5.7.1-rc.4</string>
 </resources>
