@@ -1,17 +1,13 @@
-#
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
-# Run `pod lib lint apptentive_flutter.podspec` to validate before publishing.
-#
 Pod::Spec.new do |s|
   s.name             = 'apptentive_flutter'
-  s.version          = '0.0.1'
+  s.version          = '5.7.1-rc.3'
   s.summary          = 'Apptentive SDK for Flutter'
   s.description      = <<-DESC
 Apptentive SDK for Flutter
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/apptentive/apptentive-flutter'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'Apptentive' => 'sdks@apptentive.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
