@@ -86,11 +86,11 @@ final class PluginUtils {
     }
 
     private static Level parseLogLevel(String value) {
-        if ("verbose".equals(value)) return Level.VERBOSE;
-        if ("debug".equals(value)) return Level.DEBUG;
-        if ("info".equals(value)) return Level.INFO;
-        if ("warn".equals(value)) return Level.WARN;
-        if ("error".equals(value)) return Level.ERROR;
+        if (value.contains("verbose")) return Level.VERBOSE;
+        if (value.contains("debug")) return Level.DEBUG;
+        if (value.contains("info")) return Level.INFO;
+        if (value.contains("warn")) return Level.WARN;
+        if (value.contains("error")) return Level.ERROR;
         return Level.UNKNOWN;
     }
 }
