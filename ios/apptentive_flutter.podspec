@@ -7,7 +7,7 @@ Apptentive SDK for Flutter
                        DESC
   s.homepage         = 'https://github.com/apptentive/apptentive-flutter'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Apptentive' => 'harry.woodworth@Apptentive.com' }
+  s.author           = { 'Apptentive' => 'sdks@apptentive.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
