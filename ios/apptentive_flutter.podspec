@@ -12,8 +12,8 @@ Apptentive SDK for Flutter
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
-  s.dependency 'apptentive-ios'
-  s.platform = :ios, '10.3'
+  s.dependency 'ApptentiveKit', :tag => "6.0.0-beta.3"
+  s.platform = :ios, '11.0'
 
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }

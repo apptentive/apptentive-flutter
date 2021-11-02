@@ -1,6 +1,6 @@
 #import "ApptentiveFlutterPlugin.h"
 
-#import "ApptentiveMain.h"
+@import ApptentiveKit
 
 inline static _Nullable id fromNullable(_Nullable id value) {
   return [value isKindOfClass:[NSNull class]] ? nil : value;
