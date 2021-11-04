@@ -311,7 +311,28 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 }
 
 - (void)handleSetPushNotificationIntegrationCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  NSInteger pushProvider = [self parsePushProvider:call.arguments[@"push_provider"]];
+  NSData* token = [call.arguments[@"token"] dataUsingEncoding:NSUTF8StringEncoding];
+  [Apptentive.shared setPushNotificationIntegration:pushProvider withDeviceToken:token];
+  result(@YES);
+}
+
+- (NSInteger)parsePushProvider:(NSString*) pushProvider {
+  NSLog(@"PushProvider being set: %@",pushProvider);
+  if ([pushProvider containsString:@"apptentive"]) {
+    return ApptentivePushProviderApptentive;
+  }
+  if ([pushProvider containsString:@"amazon"]) {
+    return ApptentivePushProviderAmazonSNS;
+  }
+  if ([pushProvider containsString:@"parse"]) {
+    return ApptentivePushProviderParse;
+  }
+  if ([pushProvider containsString:@"urban_airship"]) {
+    return ApptentivePushProviderUrbanAirship;
+  }
+  [NSException raise:@"Apptentive Error: Unknown push provider" format:@"Push provider %@ is invalid", pushProvider];
+  return -1;
 }
 
 // Notification Functions
