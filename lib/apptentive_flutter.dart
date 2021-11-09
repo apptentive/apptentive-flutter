@@ -61,26 +61,24 @@ class ApptentiveFlutter {
       case 'onSurveyFinished':
         bool completed = methodCall.arguments["completed"];
         surveyFinishedCallback?.call(completed);
-        return null;
+        break;
       case 'onAuthenticationFailed':
         String reason = methodCall.arguments["reason"];
         String errorMessage = methodCall.arguments["errorMessage"];
-        if (errorMessage == null) {
-          errorMessage = "";
-        }
         authenticationFailedCallback?.call(reason, errorMessage);
-        return null;
-      case 'messageCenterUnreadCountChanged':
+        break;
+      case 'onUnreadMessageCountChanged':
         int count = methodCall.arguments["count"];
         messageCenterUnreadCountChangedNotification?.call(count);
-        return null;
+        break;
       case 'onMessageSent':
         String sentByUser = methodCall.arguments["sentByUser"];
         messageSentNotification?.call(sentByUser);
-        return null;
+        break;
       default:
         throw MissingPluginException('notImplemented');
     }
+    return null;
   }
 
   static Future<bool> register(ApptentiveConfiguration configuration) async {
@@ -166,6 +164,16 @@ class ApptentiveFlutter {
       "push_provider" : provider.toString(),
       "token" : token
     });
+    return successful;
+  }
+
+  static Future<int> getUnreadMessageCount() async {
+    final int count = await _channel.invokeMethod('getUnreadMessageCount', {});
+    return count;
+  }
+
+  static Future<bool> registerListeners() async {
+    final bool successful = await _channel.invokeMethod('registerListeners', {});
     return successful;
   }
 
