@@ -10,6 +10,7 @@ import com.apptentive.android.sdk.Apptentive;
 import com.apptentive.android.sdk.Apptentive.AuthenticationFailedReason;
 import com.apptentive.android.sdk.ApptentiveConfiguration;
 import com.apptentive.android.sdk.module.survey.OnSurveyFinishedListener;
+import com.apptentive.android.sdk.module.messagecenter.UnreadMessagesListener;
 
 import java.util.Map;
 
@@ -43,6 +44,10 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
 
   // Current Activity object
   private @Nullable Activity activity;
+
+  private UnreadMessagesListener unreadMessagesListener;
+  private OnSurveyFinishedListener surveyFinishedListener;
+  private Apptentive.AuthenticationFailedListener authenticationFailedListener;
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -102,6 +107,12 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
         case "setPushNotificationIntegration":
           setPushNotificationIntegration(call, result);
           break;
+        case "getUnreadMessageCount":
+          getUnreadMessageCount(call, result);
+          break;
+        case "registerListeners":
+          registerListeners(call, result);
+          break;
         default:
           result.notImplemented();
           break;
@@ -142,22 +153,36 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
       result.error(ERROR_CODE_NO_APPLICATION, "Unable to register Apptentive SDK, FlutterPluginBinding Application is null.", null);
       return;
     }
-
     @SuppressWarnings("unchecked")
     ApptentiveConfiguration configuration = unpackConfiguration((Map<String, Object>) call.argument("configuration"));
     Apptentive.register(application, configuration);
-    Apptentive.setAuthenticationFailedListener(new Apptentive.AuthenticationFailedListener() {
+    result.success(true);
+  }
+
+  // Register listeners for native callbacks:
+  // onAuthenticationFaled, onSurveyFinished, and onUnreadMessageCountChanged
+  private void registerListeners(@NonNull MethodCall call, @NonNull final Result result){
+    authenticationFailedListener = new Apptentive.AuthenticationFailedListener() {
       @Override
       public void onAuthenticationFailed(AuthenticationFailedReason reason) {
         channel.invokeMethod("onAuthenticationFailed",PluginUtils.map("reason", reason.toString()));
       }
-    });
-    Apptentive.setOnSurveyFinishedListener(new OnSurveyFinishedListener() {
+    };
+    Apptentive.setAuthenticationFailedListener(authenticationFailedListener);
+    surveyFinishedListener = new OnSurveyFinishedListener() {
       @Override
       public void onSurveyFinished(boolean completed) {
         channel.invokeMethod("onSurveyFinished",PluginUtils.map("completed", completed));
       }
-    });
+    };
+    Apptentive.setOnSurveyFinishedListener(surveyFinishedListener);
+    unreadMessagesListener = new UnreadMessagesListener() {
+      @Override
+      public void onUnreadMessageCountChanged(int unreadMessages) {
+        channel.invokeMethod("onUnreadMessageCountChanged",PluginUtils.map("count", unreadMessages));
+      }
+    };
+    Apptentive.addUnreadMessagesListener(unreadMessagesListener);
     result.success(true);
   }
 
@@ -307,6 +332,11 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
     final String token = call.argument("token");
     Apptentive.setPushNotificationIntegration(pushProvider, token);
     result.success(true);
+  }
+
+  private void getUnreadMessageCount(@NonNull MethodCall call, @NonNull final Result result) {
+    int unreadMessages = Apptentive.getUnreadMessageCount();
+    result.success(unreadMessages);
   }
 
   //endregion
