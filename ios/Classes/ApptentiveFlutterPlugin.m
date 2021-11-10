@@ -158,6 +158,10 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
     [self handleLogoutCall:call result: result];
   } else if ([@"setPushNotificationIntegration" isEqualToString:call.method]) {
     [self handleSetPushNotificationIntegrationCall:call result: result];
+  } else if ([@"getUnreadMessageCount" isEqualToString:call.method]) {
+    [self getUnreadMessageCount:call result: result];
+  } else if ([@"registerListeners" isEqualToString:call.method]) {
+    [self registerListeners:call result: result];
   } else {
     result(FlutterMethodNotImplemented);
   }
@@ -166,22 +170,6 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 - (void)handleRegisterCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   ApptentiveConfiguration *configuration = unpackConfiguration(call.arguments[@"configuration"]);
   [Apptentive registerWithConfiguration:configuration];
-
-  // Set notification listeners
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageCenterUnreadCountChangedNotification:) name:ApptentiveMessageCenterUnreadCountChangedNotification object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveySentNotification:) name:ApptentiveSurveySentNotification object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveyCancelledNotification:) name:ApptentiveSurveyCancelledNotification object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageSentNotification:) name:ApptentiveMessageSentNotification object:nil];
-
-  [Apptentive.shared setAuthenticationFailureCallback:^void (ApptentiveAuthenticationFailureReason reason, NSString *errorMessage) {
-    [self.channel invokeMethod:@"onAuthenticationFailed"
-          arguments:@{
-            @"reason": fromNullable(@(reason)),
-            @"errorMessage": fromNullable(errorMessage),
-          }
-    ];
-  }];
-
   result(@YES);
 }
 
@@ -196,6 +184,23 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
                                              withCustomData:customData
                                                  completion:^(BOOL presented) {
     result([NSNumber numberWithBool:presented]);
+  }];
+}
+
+// Set notification observers
+- (void)registerListeners:(FlutterMethodCall*)call result:(FlutterResult)result {
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageCenterUnreadCountChangedNotification:) name:ApptentiveMessageCenterUnreadCountChangedNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveySentNotification:) name:ApptentiveSurveySentNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveyCancelledNotification:) name:ApptentiveSurveyCancelledNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageSentNotification:) name:ApptentiveMessageSentNotification object:nil];
+
+  [Apptentive.shared setAuthenticationFailureCallback:^void (ApptentiveAuthenticationFailureReason reason, NSString *errorMessage) {
+    [self.channel invokeMethod:@"onAuthenticationFailed"
+          arguments:@{
+            @"reason": fromNullable(@(reason)),
+            @"errorMessage": fromNullable(errorMessage),
+          }
+    ];
   }];
 }
 
@@ -314,12 +319,17 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   result(FlutterMethodNotImplemented);
 }
 
+- (void)getUnreadMessageCount:(FlutterMethodCall*)call result:(FlutterResult)result {
+  NSNumber* count = [NSNumber numberWithInteger:Apptentive.shared.unreadMessageCount];
+  result(count);
+}
+
 // Notification Functions
 
 - (void)messageCenterUnreadCountChangedNotification:(NSNotification *)notification {
   [self.channel invokeMethod:@"onUnreadMessageCountChanged"
         arguments:@{
-          @"unreadMessages" : fromNullable(notification.userInfo[@"count"]),
+          @"count" : fromNullable(notification.userInfo[@"count"]),
         }
   ];
 }

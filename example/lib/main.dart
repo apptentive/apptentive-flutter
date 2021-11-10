@@ -50,23 +50,19 @@ class _MyAppState extends State<MyApp> {
         enableDebugLogFile: true,
         gatherCarrierInfo: true
     );
+    ApptentiveFlutter.surveyFinishedCallback = (bool completed) {
+      print("Survey Finished?: ${completed}");
+    };
+    ApptentiveFlutter.authenticationFailedCallback = (String reason, String errorMessage) {
+      print("Authentication failed because due to following reason: ${reason} Error message: ${errorMessage}");
+    };
+    ApptentiveFlutter.messageCenterUnreadCountChangedNotification = (int count) {
+      print("Message Center unread message count is now: ${count}");
+    };
+    ApptentiveFlutter.messageSentNotification = (String sentByUser) {
+      print("Message sent by user: " + sentByUser);
+    };
     bool successful = await ApptentiveFlutter.register(configuration);
-
-    // Set callback/notification functions
-    if (successful) {
-      ApptentiveFlutter.surveyFinishedCallback = (bool completed) {
-        print("Survey Finished?: ${completed}");
-      };
-      ApptentiveFlutter.authenticationFailedCallback = (String reason, String errorMessage) {
-        print("Authentication failed because due to following reason: ${reason} Error message: ${errorMessage}");
-      };
-      ApptentiveFlutter.messageCenterUnreadCountChangedNotification = (int count) {
-        print("Message Center unread message count is now: ${count}");
-      };
-      ApptentiveFlutter.messageSentNotification = (String sentByUser) {
-        print("Message sent by user: " + sentByUser);
-      };
-    }
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
@@ -102,6 +98,22 @@ class _MyAppState extends State<MyApp> {
                   ApptentiveFlutter.showMessageCenter();
                 },
                 child: Text('Show Message Center'),
+              ),
+
+              OutlinedButton(
+                onPressed: () {
+                  ApptentiveFlutter.getUnreadMessageCount().then((count) {
+                    print("Unread Message Count: $count");
+                  });
+                },
+                child: Text('Print Unread Message Count'),
+              ),
+
+              OutlinedButton(
+                onPressed: () {
+                  ApptentiveFlutter.registerListeners();
+                },
+                child: Text('Register Listeners'),
               ),
 
             ],
