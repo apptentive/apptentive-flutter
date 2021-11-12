@@ -1,3 +1,7 @@
+# 2021-11-10 - v5.7.1-rc.5
+- Added and fixed callback listeners on Android and iOS
+- Implemented getUnreadMessageCount()
+
 # 2021-10-14 - v5.7.1-rc.4
 - Added distribution information
 - Fixed Android log level bug
