@@ -108,6 +108,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 @interface ApptentiveFlutterPlugin ()
 
 @property (strong, nonatomic) FlutterMethodChannel* channel;
+@property NSData* device_token;
 
 @end
 
@@ -118,6 +119,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
       methodChannelWithName:@"apptentive_flutter"
             binaryMessenger:[registrar messenger]];
   ApptentiveFlutterPlugin* instance = [[ApptentiveFlutterPlugin alloc] initWithChannel:channel];
+  [registrar addApplicationDelegate:instance];
   [registrar addMethodCallDelegate:instance channel:channel];
 }
 
@@ -126,6 +128,10 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
   if (self) {
     _channel = channel;
+    // Register for remote notifications in order to grab device token
+    dispatch_async(dispatch_get_main_queue(), ^() {
+      [[UIApplication sharedApplication] registerForRemoteNotifications];
+    });
   }
 
   return self;
@@ -311,14 +317,19 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 }
 
 - (void)handleSetPushNotificationIntegrationCall:(FlutterMethodCall*)call result:(FlutterResult)result {
+  // Convert the push provider into an integer using the util method
   NSInteger pushProvider = [self parsePushProvider:call.arguments[@"push_provider"]];
-  NSData* token = [call.arguments[@"token"] dataUsingEncoding:NSUTF8StringEncoding];
-  [Apptentive.shared setPushNotificationIntegration:pushProvider withDeviceToken:token];
-  result(@YES);
+  // Call native register method with saved device token if token is not null
+  if (_device_token != NULL) {
+    [Apptentive.shared setPushNotificationIntegration:pushProvider withDeviceToken:_device_token];
+    result(@YES);
+  } else {
+    result(@NO);
+  }
 }
 
+
 - (NSInteger)parsePushProvider:(NSString*) pushProvider {
-  NSLog(@"PushProvider being set: %@",pushProvider);
   if ([pushProvider containsString:@"apptentive"]) {
     return ApptentivePushProviderApptentive;
   }
@@ -384,6 +395,11 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (BOOL)isRegistered {
   return Apptentive.shared.apptentiveKey != nil && Apptentive.shared.apptentiveSignature != nil;
+}
+
+// Save the device token after registering for remote notifications
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    _device_token = deviceToken;
 }
 
 @end
