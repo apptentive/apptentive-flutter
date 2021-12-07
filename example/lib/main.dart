@@ -93,29 +93,50 @@ class _MyAppState extends State<MyApp> {
 
               person(context),
 
-              OutlinedButton(
-                onPressed: () {
-                  ApptentiveFlutter.showMessageCenter();
-                },
-                child: Text('Show Message Center'),
-              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children:[
+                        OutlinedButton(
+                          onPressed: () {
+                            ApptentiveFlutter.showMessageCenter();
+                          },
+                          child: Text('Show Message Center'),
+                        ),
 
-              OutlinedButton(
-                onPressed: () {
-                  ApptentiveFlutter.getUnreadMessageCount().then((count) {
-                    print("Unread Message Count: $count");
-                  });
-                },
-                child: Text('Print Unread Message Count'),
-              ),
+                        OutlinedButton(
+                          onPressed: () {
+                            ApptentiveFlutter.getUnreadMessageCount().then((count) {
+                              print("Unread Message Count: $count");
+                            });
+                          },
+                          child: Text('Print Unread Message Count'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children:[
+                        OutlinedButton(
+                          onPressed: () {
+                            ApptentiveFlutter.registerListeners();
+                          },
+                          child: Text('Register Listeners'),
+                        ),
 
-              OutlinedButton(
-                onPressed: () {
-                  ApptentiveFlutter.registerListeners();
-                },
-                child: Text('Register Listeners'),
+                        OutlinedButton(
+                          onPressed: () {
+                            ApptentiveFlutter.setPushNotificationIntegration(provider: PushProvider.apptentive, token: "<Your_Token_Here>");
+                          },
+                          child: Text('Set Push Notification Integration'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-
             ],
           ),
         ),
