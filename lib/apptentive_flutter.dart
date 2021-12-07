@@ -72,6 +72,7 @@ class ApptentiveFlutter {
         messageCenterUnreadCountChangedNotification?.call(count);
         break;
       case 'onMessageSent':
+        await _channel.invokeMethod('requestPushPermissions', {});
         String sentByUser = methodCall.arguments["sentByUser"];
         messageSentNotification?.call(sentByUser);
         break;
