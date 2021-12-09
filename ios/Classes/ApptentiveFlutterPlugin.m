@@ -84,7 +84,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
   // Set distribution information
   configuration.distributionName = @"Flutter";
-  configuration.distributionVersion = @"5.7.1-rc.5";
+  configuration.distributionVersion = @"5.7.1-rc.6";
 
   return configuration;
 }

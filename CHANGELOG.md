@@ -1,3 +1,7 @@
+# 2021-12-9 - v5.7.1-rc.6
+- Implement setPushNotificationIntegration()
+- Ask for push permissions when Message Center is used on iOS
+
 # 2021-11-10 - v5.7.1-rc.5
 - Added and fixed callback listeners on Android and iOS
 - Implemented getUnreadMessageCount()
