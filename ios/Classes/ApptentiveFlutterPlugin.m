@@ -384,6 +384,11 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   result(count);
 }
 
+- (void)getUnreadMessageCount:(FlutterMethodCall*)call result:(FlutterResult)result {
+  NSNumber* count = [NSNumber numberWithInteger:Apptentive.shared.unreadMessageCount];
+  result(count);
+}
+
 // Notification Functions
 
 - (void)messageCenterUnreadCountChangedNotification:(NSNotification *)notification {
