@@ -39,9 +39,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     // Save the device token for our Firebase push integration on Android
     if (Platform.isAndroid) {
-      print("APPTENTIVE TEST: Getting firebase token...");
       integration_token = await FirebaseMessaging.instance.getToken();
-      print("APPTENTIVE TEST: Firebase token is: $integration_token");
     }
 
     final String apptentiveKey;
