@@ -6,7 +6,20 @@ import 'dart:io' show Platform;
 import 'package:apptentive_flutter/apptentive_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Apptentive: handling a background message");
+  print("Notification Data: ${message.data}");
+}
+
+String? integration_token = "";
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(MyApp());
 }
 
@@ -24,6 +37,11 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
+    // Save the device token for our Firebase push integration on Android
+    if (Platform.isAndroid) {
+      integration_token = await FirebaseMessaging.instance.getToken();
+    }
+
     final String apptentiveKey;
     final String apptentiveSignature;
     if (Platform.isAndroid) {
@@ -93,29 +111,54 @@ class _MyAppState extends State<MyApp> {
 
               person(context),
 
-              OutlinedButton(
-                onPressed: () {
-                  ApptentiveFlutter.showMessageCenter();
-                },
-                child: Text('Show Message Center'),
-              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children:[
+                        OutlinedButton(
+                          onPressed: () {
+                            ApptentiveFlutter.showMessageCenter();
+                          },
+                          child: Text('Show Message Center'),
+                        ),
 
-              OutlinedButton(
-                onPressed: () {
-                  ApptentiveFlutter.getUnreadMessageCount().then((count) {
-                    print("Unread Message Count: $count");
-                  });
-                },
-                child: Text('Print Unread Message Count'),
-              ),
+                        OutlinedButton(
+                          onPressed: () {
+                            ApptentiveFlutter.getUnreadMessageCount().then((count) {
+                              print("Unread Message Count: $count");
+                            });
+                          },
+                          child: Text('Print Unread Message Count'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children:[
+                        OutlinedButton(
+                          onPressed: () {
+                            ApptentiveFlutter.registerListeners();
+                          },
+                          child: Text('Register Listeners'),
+                        ),
 
-              OutlinedButton(
-                onPressed: () {
-                  ApptentiveFlutter.registerListeners();
-                },
-                child: Text('Register Listeners'),
+                        OutlinedButton(
+                          onPressed: () {
+                            if (integration_token != null) {
+                              ApptentiveFlutter.setPushNotificationIntegration(provider: PushProvider.apptentive, token: integration_token!);
+                            } else {
+                              print("Apptentive Error: Push integration token is null.");
+                            }
+                          },
+                          child: Text('Set Push Notification Integration'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-
             ],
           ),
         ),

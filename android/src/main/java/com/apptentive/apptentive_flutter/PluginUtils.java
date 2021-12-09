@@ -25,16 +25,16 @@ final class PluginUtils {
     }
 
     public static int parsePushProvider(String pushProvider) {
-        if ("apptentive".equals(pushProvider)) {
+        if (pushProvider.contains("apptentive")) {
             return Apptentive.PUSH_PROVIDER_APPTENTIVE;
         }
-        if ("amazon".equals(pushProvider)) {
+        if (pushProvider.contains("amazon")) {
             return Apptentive.PUSH_PROVIDER_AMAZON_AWS_SNS;
         }
-        if ("parse".equals(pushProvider)) {
+        if (pushProvider.contains("parse")) {
             return Apptentive.PUSH_PROVIDER_PARSE;
         }
-        if ("urban_airship".equals(pushProvider)) {
+        if (pushProvider.contains("urban_airship")) {
             return Apptentive.PUSH_PROVIDER_URBAN_AIRSHIP;
         }
 
