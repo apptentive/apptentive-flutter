@@ -43,7 +43,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
     if (parseLogLevel(logLevelValue, &logLevel)) {
       configuration.logLevel = logLevel;
     } else {
-      NSLog(@"Unknown log level: %@", logLevelValue);
+      NSLog(@"Apptentive: Unknown log level: %@", logLevelValue);
     }
   }
 
@@ -84,7 +84,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
   // Set distribution information
   configuration.distributionName = @"Flutter";
-  configuration.distributionVersion = @"5.7.1-rc.5";
+  configuration.distributionVersion = @"5.7.1-rc.6";
 
   return configuration;
 }
@@ -108,6 +108,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 @interface ApptentiveFlutterPlugin ()
 
 @property (strong, nonatomic) FlutterMethodChannel* channel;
+@property (strong, nonatomic) NSData* deviceToken;
 
 @end
 
@@ -118,6 +119,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
       methodChannelWithName:@"apptentive_flutter"
             binaryMessenger:[registrar messenger]];
   ApptentiveFlutterPlugin* instance = [[ApptentiveFlutterPlugin alloc] initWithChannel:channel];
+  [registrar addApplicationDelegate:instance];
   [registrar addMethodCallDelegate:instance channel:channel];
 }
 
@@ -126,6 +128,8 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
   if (self) {
     _channel = channel;
+    // Register to grab new device/push token
+    [[UIApplication sharedApplication] registerForRemoteNotifications];
   }
 
   return self;
@@ -159,9 +163,11 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   } else if ([@"setPushNotificationIntegration" isEqualToString:call.method]) {
     [self handleSetPushNotificationIntegrationCall:call result: result];
   } else if ([@"getUnreadMessageCount" isEqualToString:call.method]) {
-    [self getUnreadMessageCount:call result: result];
+    [self handleGetUnreadMessageCount:call result: result];
   } else if ([@"registerListeners" isEqualToString:call.method]) {
-    [self registerListeners:call result: result];
+    [self handleRegisterListeners:call result: result];
+  } else if ([@"requestPushPermissions" isEqualToString:call.method]) {
+    [self handleRequestPushPermissions:call result: result];
   } else {
     result(FlutterMethodNotImplemented);
   }
@@ -188,7 +194,7 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 }
 
 // Set notification observers
-- (void)registerListeners:(FlutterMethodCall*)call result:(FlutterResult)result {
+- (void)handleRegisterListeners:(FlutterMethodCall*)call result:(FlutterResult)result {
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageCenterUnreadCountChangedNotification:) name:ApptentiveMessageCenterUnreadCountChangedNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveySentNotification:) name:ApptentiveSurveySentNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveyCancelledNotification:) name:ApptentiveSurveyCancelledNotification object:nil];
@@ -316,7 +322,66 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 }
 
 - (void)handleSetPushNotificationIntegrationCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  result(FlutterMethodNotImplemented);
+  // Convert the push provider into an integer using the util method
+  NSInteger pushProvider = [self parsePushProvider:call.arguments[@"push_provider"]];
+  // Call native register method with saved device token if token is not null
+  if (_deviceToken != NULL) {
+    [Apptentive.shared setPushNotificationIntegration:pushProvider withDeviceToken:_deviceToken];
+    result(@YES);
+  } else {
+    result(@NO);
+  }
+}
+
+- (NSInteger)parsePushProvider:(NSString*) pushProvider {
+  if ([pushProvider containsString:@"apptentive"]) {
+    return ApptentivePushProviderApptentive;
+  }
+  if ([pushProvider containsString:@"amazon"]) {
+    return ApptentivePushProviderAmazonSNS;
+  }
+  if ([pushProvider containsString:@"parse"]) {
+    return ApptentivePushProviderParse;
+  }
+  if ([pushProvider containsString:@"urban_airship"]) {
+    return ApptentivePushProviderUrbanAirship;
+  }
+  [NSException raise:@"Apptentive Error: Unknown push provider" format:@"Push provider %@ is invalid", pushProvider];
+  return -1;
+}
+
+- (void)handleGetUnreadMessageCount:(FlutterMethodCall*)call result:(FlutterResult)result {
+  NSNumber* count = [NSNumber numberWithInteger:Apptentive.shared.unreadMessageCount];
+  result(count);
+}
+
+- (void)handleRequestPushPermissions:(FlutterMethodCall*)call result:(FlutterResult)result {
+  UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+  [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings* _Nonnull settings) {
+    switch (settings.authorizationStatus) {
+      // End consumer has not seen permission dialog, show it
+      case UNAuthorizationStatusNotDetermined: {
+        center.delegate = self;
+        [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert + UNAuthorizationOptionSound) completionHandler:^(BOOL granted, NSError * _Nullable error) {
+          if (granted) {
+            [[UIApplication sharedApplication] registerForRemoteNotifications];
+          }
+        }];
+        break;
+      }
+      // End consumer already accepted, register for remote notifications
+      case UNAuthorizationStatusAuthorized: {
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
+      }
+      default:
+        break;
+    }
+  }];
+}
+
+- (void)getUnreadMessageCount:(FlutterMethodCall*)call result:(FlutterResult)result {
+  NSNumber* count = [NSNumber numberWithInteger:Apptentive.shared.unreadMessageCount];
+  result(count);
 }
 
 - (void)getUnreadMessageCount:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -373,6 +438,31 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
 
 - (BOOL)isRegistered {
   return Apptentive.shared.apptentiveKey != nil && Apptentive.shared.apptentiveSignature != nil;
+}
+
+// Because Apptentive.shared is not the delegate, pass data into its internal functions for push handling
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+  [Apptentive.shared userNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
+}
+
+// Because Apptentive.shared is not the delegate, pass data into its internal functions for push handling
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
+  [Apptentive.shared userNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
+}
+
+// Save the device token after registering for remote notifications
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    self.deviceToken = deviceToken;
+}
+
+// Tell Native Apptentive to handle the notification
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result)) completionHandler {
+  [Apptentive.shared didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+}
+
+// Log the error if registering deviceCustomDataRemoverTester notifications failed
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+  NSLog(@"Apptentive Error: Failed to register for remote notifications with error: %@", [error localizedDescription]);
 }
 
 @end
