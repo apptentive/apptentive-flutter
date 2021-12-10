@@ -113,6 +113,9 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
         case "registerListeners":
           registerListeners(call, result);
           break;
+        case "handleRequestPushPermissions":
+          // Do nothing to avoid not implemented result
+          break;
         default:
           result.notImplemented();
           break;
