@@ -156,10 +156,6 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
     [self handleAddCustomDeviceDataCall:call result: result];
   } else if ([@"removeCustomDeviceData" isEqualToString:call.method]) {
     [self handleRemoveCustomDeviceDataCall:call result: result];
-  } else if ([@"login" isEqualToString:call.method]) {
-    [self handleLoginCall:call result: result];
-  } else if ([@"logout" isEqualToString:call.method]) {
-    [self handleLogoutCall:call result: result];
   } else if ([@"setPushNotificationIntegration" isEqualToString:call.method]) {
     [self handleSetPushNotificationIntegrationCall:call result: result];
   } else if ([@"getUnreadMessageCount" isEqualToString:call.method]) {
@@ -199,15 +195,6 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveySentNotification:) name:ApptentiveSurveySentNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(surveyCancelledNotification:) name:ApptentiveSurveyCancelledNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(messageSentNotification:) name:ApptentiveMessageSentNotification object:nil];
-
-  [Apptentive.shared setAuthenticationFailureCallback:^void (ApptentiveAuthenticationFailureReason reason, NSString *errorMessage) {
-    [self.channel invokeMethod:@"onAuthenticationFailed"
-          arguments:@{
-            @"reason": fromNullable(@(reason)),
-            @"errorMessage": fromNullable(errorMessage),
-          }
-    ];
-  }];
 }
 
 - (void)handleEngageCall:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -308,19 +295,6 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   result(@YES);
 }
 
-- (void)handleLoginCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  NSString *token = call.arguments[@"token"];
-  [Apptentive.shared logInWithToken:token
-                         completion:^(BOOL success, NSError * _Nonnull error) {
-    result([NSNumber numberWithBool:success]);
-  }];
-}
-
-- (void)handleLogoutCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  [Apptentive.shared logOut];
-  result(@YES);
-}
-
 - (void)handleSetPushNotificationIntegrationCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   // Convert the push provider into an integer using the util method
   NSInteger pushProvider = [self parsePushProvider:call.arguments[@"push_provider"]];
@@ -413,15 +387,6 @@ static ApptentiveConfiguration *unpackConfiguration(NSDictionary *info) {
   [self.channel invokeMethod:@"onMessageSent"
         arguments:@{
           @"sentByUser" : sentByUser,
-        }
-  ];
-}
-
-- (void)onAuthenticationFailed:(NSString *)reason errorMessage:(NSString *)errorMessage {
-  [self.channel invokeMethod:@"onAuthenticationFailed"
-        arguments:@{
-          @"reason": reason,
-          @"errorMessage": errorMessage,
         }
   ];
 }

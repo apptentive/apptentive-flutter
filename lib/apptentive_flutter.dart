@@ -43,7 +43,6 @@ class ApptentiveConfiguration {
 enum PushProvider { apptentive, amazon, parse, urban_airship }
 
 typedef SurveyFinishedCallback = void Function(bool completed);
-typedef AuthenticationFailedCallback = void Function(String reason, String errorMessage);
 typedef MessageCenterUnreadCountChangedNotification = void Function(int count);
 typedef MessageSentNotification = void Function(String sentByUser);
 
@@ -52,7 +51,6 @@ class ApptentiveFlutter {
       ..setMethodCallHandler(_nativeCallback);
 
   static SurveyFinishedCallback? surveyFinishedCallback;
-  static AuthenticationFailedCallback? authenticationFailedCallback;
   static MessageCenterUnreadCountChangedNotification? messageCenterUnreadCountChangedNotification;
   static MessageSentNotification? messageSentNotification;
 
@@ -61,11 +59,6 @@ class ApptentiveFlutter {
       case 'onSurveyFinished':
         bool completed = methodCall.arguments["completed"];
         surveyFinishedCallback?.call(completed);
-        break;
-      case 'onAuthenticationFailed':
-        String reason = methodCall.arguments["reason"];
-        String errorMessage = methodCall.arguments["errorMessage"];
-        authenticationFailedCallback?.call(reason, errorMessage);
         break;
       case 'onUnreadMessageCountChanged':
         int count = methodCall.arguments["count"];
@@ -149,13 +142,6 @@ class ApptentiveFlutter {
   static Future<bool> removeCustomDeviceData({required String key}) async {
     final bool successful = await _channel.invokeMethod('removeCustomDeviceData', {
       "key" : key
-    });
-    return successful;
-  }
-
-  static Future<bool> login({required String token}) async {
-    final bool successful = await _channel.invokeMethod('login', {
-      "token" : token
     });
     return successful;
   }
