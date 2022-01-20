@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.apptentive.android.sdk.Apptentive;
-import com.apptentive.android.sdk.Apptentive.AuthenticationFailedReason;
 import com.apptentive.android.sdk.ApptentiveConfiguration;
 import com.apptentive.android.sdk.module.survey.OnSurveyFinishedListener;
 import com.apptentive.android.sdk.module.messagecenter.UnreadMessagesListener;
@@ -31,7 +30,6 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
   private static final String ERROR_CODE_NO_APPLICATION = "100";
   private static final String ERROR_CODE_ARGUMENT_ERROR = "200";
   private static final String ERROR_CODE_EXCEPTION = "300";
-  private static final String ERROR_CODE_LOGIN_FAILED = "400";
 
   /// The MethodChannel that will communicate between Flutter and native Android
   ///
@@ -47,7 +45,6 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
 
   private UnreadMessagesListener unreadMessagesListener;
   private OnSurveyFinishedListener surveyFinishedListener;
-  private Apptentive.AuthenticationFailedListener authenticationFailedListener;
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -97,12 +94,6 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
           break;
         case "removeCustomDeviceData":
           removeCustomDeviceData(call, result);
-          break;
-        case "login":
-          login(call, result);
-          break;
-        case "logout":
-          logout(call, result);
           break;
         case "setPushNotificationIntegration":
           setPushNotificationIntegration(call, result);
@@ -163,15 +154,8 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
   }
 
   // Register listeners for native callbacks:
-  // onAuthenticationFaled, onSurveyFinished, and onUnreadMessageCountChanged
+  // onSurveyFinished and onUnreadMessageCountChanged
   private void registerListeners(@NonNull MethodCall call, @NonNull final Result result){
-    authenticationFailedListener = new Apptentive.AuthenticationFailedListener() {
-      @Override
-      public void onAuthenticationFailed(AuthenticationFailedReason reason) {
-        channel.invokeMethod("onAuthenticationFailed",PluginUtils.map("reason", reason.toString()));
-      }
-    };
-    Apptentive.setAuthenticationFailedListener(authenticationFailedListener);
     surveyFinishedListener = new OnSurveyFinishedListener() {
       @Override
       public void onSurveyFinished(boolean completed) {
@@ -307,26 +291,6 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
   private void removeCustomDeviceData(@NonNull MethodCall call, @NonNull final Result result) {
     final String key = call.argument("key");
     Apptentive.removeCustomDeviceData(key);
-    result.success(true);
-  }
-
-  private void login(@NonNull MethodCall call, @NonNull final Result result) {
-    final String token = call.argument("token");
-    Apptentive.login(token, new Apptentive.LoginCallback() {
-      @Override
-      public void onLoginFinish() {
-        result.success(true);
-      }
-
-      @Override
-      public void onLoginFail(String errorMessage) {
-        result.error(ERROR_CODE_LOGIN_FAILED, "Login failed: " + errorMessage, null);
-      }
-    });
-  }
-
-  private void logout(@NonNull MethodCall call, @NonNull final Result result) {
-    Apptentive.logout();
     result.success(true);
   }
 
