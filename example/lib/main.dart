@@ -73,9 +73,6 @@ class _MyAppState extends State<MyApp> {
     ApptentiveFlutter.surveyFinishedCallback = (bool completed) {
       print("Survey Finished?: ${completed}");
     };
-    ApptentiveFlutter.authenticationFailedCallback = (String reason, String errorMessage) {
-      print("Authentication failed because due to following reason: ${reason} Error message: ${errorMessage}");
-    };
     ApptentiveFlutter.messageCenterUnreadCountChangedNotification = (int count) {
       print("Message Center unread message count is now: ${count}");
     };
