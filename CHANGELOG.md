@@ -1,7 +1,8 @@
-# 2022-01-20 - v5.8.0-rc.7
+# 2022-01-27 - v5.8.0-rc.7
 - Apptentive Android SDK: 5.8.0
 - Apptentive iOS SDK: 5.3.4
 - Remove deprecated login feature
+- Update jcenter to mavenCentral
 
 # 2021-12-10 - v5.7.1-rc.6+hotfix.1
 - Fix merge issue with duplicated methods
