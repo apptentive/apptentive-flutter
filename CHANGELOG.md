@@ -1,4 +1,4 @@
-# 2022-01-27 - v5.8.0-rc.7
+# 2022-01-31 - v5.8.0-rc.7
 - Apptentive Android SDK: 5.8.0
 - Apptentive iOS SDK: 5.3.4
 - Remove deprecated login feature
