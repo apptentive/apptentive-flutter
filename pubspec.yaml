@@ -1,6 +1,6 @@
 name: apptentive_flutter
 description: Apptentive SDK for Flutter
-version: 5.8.0-rc.7
+version: 5.8.3
 repository: https://github.com/apptentive/apptentive-flutter
 issue_tracker: https://github.com/apptentive/apptentive-flutter/issues
 documentation: https://learn.apptentive.com/knowledge-base/apptentive-sdk-flutter-plugin-guide/
@@ -12,7 +12,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  fluttertoast: ^8.0.7
 
 dev_dependencies:
   flutter_test:
