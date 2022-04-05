@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:apptentive_flutter/apptentive_flutter.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -173,9 +172,9 @@ class _MyAppState extends State<MyApp> {
         onSubmit: (eventName) async {
           ApptentiveFlutter.engage(eventName: eventName).then((value) {
             if (!value) {
-              Fluttertoast.showToast(msg: "Not engaged");
+              print("Not engaged");
             } else {
-              Fluttertoast.showToast(msg: "${eventName} engaged!");
+              print("${eventName} engaged!");
             }
           });
         },
@@ -193,9 +192,9 @@ class _MyAppState extends State<MyApp> {
         onSubmit: (personCustomDataMap) async {
           ApptentiveFlutter.addCustomPersonData(key: personCustomDataMap["name"]!, value: personCustomDataMap["value"]!).then((value) {
             if (!value) {
-              Fluttertoast.showToast(msg: "Person Custom Data Not Added");
+              print("Person Custom Data Not Added");
             } else {
-              Fluttertoast.showToast(msg: "Person Custom Data Added!");
+              print("Person Custom Data Added!");
             }
           });
         },
@@ -212,9 +211,9 @@ class _MyAppState extends State<MyApp> {
         onSubmit: (personCustomDataName) async {
           ApptentiveFlutter.removeCustomPersonData(key: personCustomDataName).then((value) {
             if (!value) {
-              Fluttertoast.showToast(msg: "Custom Person Data Not Removed");
+              print("Custom Person Data Not Removed");
             } else {
-              Fluttertoast.showToast(msg: "Custom Person Data Removed!");
+              print("Custom Person Data Removed!");
             }
           });
         },
@@ -232,9 +231,9 @@ class _MyAppState extends State<MyApp> {
         onSubmit: (deviceCustomDataMap) async {
           ApptentiveFlutter.addCustomDeviceData(key: deviceCustomDataMap["name"]!, value: deviceCustomDataMap["value"]!).then((value) {
             if (!value) {
-              Fluttertoast.showToast(msg: "Device Custom Data Not Added");
+              print("Device Custom Data Not Added");
             } else {
-              Fluttertoast.showToast(msg: "Device Custom Data Added!");
+              print("Device Custom Data Added!");
             }
           });
         },
@@ -251,9 +250,9 @@ class _MyAppState extends State<MyApp> {
         onSubmit: (deviceCustomDataName) async {
           ApptentiveFlutter.removeCustomDeviceData(key: deviceCustomDataName).then((value) {
             if (!value) {
-              Fluttertoast.showToast(msg: "Custom Device Data Not Removed");
+              print("Custom Device Data Not Removed");
             } else {
-              Fluttertoast.showToast(msg: "Custom Device Data Removed!");
+              print("Custom Device Data Removed!");
             }
           });
         },
