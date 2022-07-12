@@ -3,11 +3,6 @@ import UIKit
 import ApptentiveKit
 import PhotosUI
 
-// TODO handle Get unread message count
-// TODO push notifications
-// TODO register listeners
-// TODO distribution info
-
 public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDelegate, FlutterPlugin {
 
   private static let errorCode = "Apptentive Error"
@@ -18,10 +13,8 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "apptentive_flutter", binaryMessenger: registrar.messenger())
     let instance = ApptentiveFlutterPlugin(channel: channel)
-    registrar.addApplicationDelegate(instance)
     registrar.addMethodCallDelegate(instance, channel: channel)
-
-    UNUserNotificationCenter.current().delegate = Apptentive.shared
+    registrar.addApplicationDelegate(instance)
   }
 
   // Handle the flutter method call, delegating it based on the method name
@@ -67,17 +60,33 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     Apptentive.shared.setRemoteNotificationDeviceToken(deviceToken)
   }
 
+  public func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    print("Failed to register for remote notifications with error: \(error.localizedDescription).")
+  }
+
+  public func applicationDidBecomeActive(_ application: UIApplication) {
+    print("Application became active")
+  }
+
+  public func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+    let _ = Apptentive.shared.didReceveUserNotificationResponse(response, withCompletionHandler: completionHandler)
+  }
+
+  public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    let _ = Apptentive.shared.willPresent(notification, withCompletionHandler: completionHandler)
+  }
+
   // MARK: - Apptentive Plugin Methods
 
   // Register the Apptentive iOS SDK
   private func handleRegisterCall(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-    guard let callArguments = call.arguments as? [String: String] else {
+    guard let callArguments = call.arguments as? [String: Any] else {
       return result(FlutterError.init(code: Self.errorCode, message: "Expected array of strings for arguments.", details: nil))
     }
 
     // Get and set distribution information
-    guard let distributionName = callArguments["distributionName"],
-          let distributionVersion = callArguments["distributionVersion"]
+    guard let distributionName = callArguments["distributionName"] as? String,
+          let distributionVersion = callArguments["distributionVersion"] as? String
     else {
       return result(FlutterError.init(code: Self.errorCode, message: "Internal Apptentive Error: Missing distribution information", details: nil))
     }
@@ -86,7 +95,7 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     Apptentive.shared.distributionVersion = distributionVersion
 
     guard let (logLevel, appCredentials) = self.unpackConfiguration(callArguments["configuration"]) else {
-      return result(FlutterError.init(code: Self.errorCode, message: "Missing or invalid app credentials (key/signature)", details: nil))
+      return result(FlutterError.init(code: Self.errorCode, message: "Missing or invalid app credentials (key/signature)", details: "Configuration is \(callArguments["configuration"] ?? "missing")"))
     }
 
     ApptentiveLogger.logLevel = logLevel
@@ -94,8 +103,8 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     // Register Apptentive using credentials
     Apptentive.shared.register(with: appCredentials, completion: { (completionResult) -> Void in
         switch completionResult {
-        case .success(let success):
-            result(success)
+        case .success:
+            result(true)
         case .failure(let error):
           result(FlutterError.init(code: Self.errorCode, message: "Apptentive SDK failed to register.", details: error.localizedDescription))
         }
@@ -217,7 +226,29 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
 
   private func handleSetPushNotificationIntegrationCall(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
     print("Push notification integration set automatically via FlutterApplicationLifeCycleDelegate.")
-    result(false)
+
+    UNUserNotificationCenter.current().getNotificationSettings { settings in
+      switch settings.authorizationStatus {
+      case .notDetermined:
+        UNUserNotificationCenter.current().delegate = self
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
+          if granted {
+            DispatchQueue.main.async {
+              UIApplication.shared.registerForRemoteNotifications()
+            }
+          } else {
+            print("Push authorization was not granted: \(error?.localizedDescription ?? "no error").")
+          }
+        }
+
+      case .authorized:
+        UIApplication.shared.registerForRemoteNotifications()
+
+      default:
+        print("Push authorization status is not authorized.")
+        break
+      }
+    }
   }
 
   // Register Apptentive listeners
@@ -267,7 +298,9 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     case "LogLevel.info": return .notice
     case "LogLevel.warn": return .warning
     case "LogLevel.error": return .critical
-    case .none: return .notice
+    case .none:
+      print("")
+      return .notice
     case .some(let unknownLevel):
       print("Apptentive Unknown log level: \(unknownLevel). Using .notice by default.")
       return .notice
@@ -275,15 +308,16 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
   }
 
   private func unpackConfiguration(_ configuration: Any?) -> (LogLevel, Apptentive.AppCredentials)? {
-    guard let configuration = configuration as? [String: String],
-          let key = configuration["key"],
-          let signature = configuration["signature"]
+    guard let configuration = configuration as? [String: Any],
+          let key = configuration["key"] as? String,
+          let signature = configuration["signature"] as? String
     else {
       print("Missing App Credentials (key/signature) in configuration!")
       return nil
     }
 
-    return (self.convertLogLevel(logLevel: configuration["log_level"]), .init(key: key, signature: signature))
+    let logLevel = configuration["log_level"] as? String
+    return (self.convertLogLevel(logLevel: logLevel), .init(key: key, signature: signature))
   }
 
   private func convertCustomDataArguments(_ callArguments: Any?) -> (String, CustomDataCompatible)? {
