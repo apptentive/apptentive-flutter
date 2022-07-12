@@ -12,7 +12,7 @@ Apptentive SDK for Flutter
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
-  s.dependency 'ApptentiveKit', :tag => "6.0.0-beta.3"
+  s.dependency 'ApptentiveKit', '~> 6.0.1'
   s.platform = :ios, '11.0'
 
   # Flutter.framework does not contain a i386 slice.
