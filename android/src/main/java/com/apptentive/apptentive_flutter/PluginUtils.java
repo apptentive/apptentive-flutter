@@ -25,16 +25,16 @@ final class PluginUtils {
     }
 
     public static int parsePushProvider(String pushProvider) {
-        if ("apptentive".equals(pushProvider)) {
+        if (pushProvider.contains("apptentive")) {
             return Apptentive.PUSH_PROVIDER_APPTENTIVE;
         }
-        if ("amazon".equals(pushProvider)) {
+        if (pushProvider.contains("amazon")) {
             return Apptentive.PUSH_PROVIDER_AMAZON_AWS_SNS;
         }
-        if ("parse".equals(pushProvider)) {
+        if (pushProvider.contains("parse")) {
             return Apptentive.PUSH_PROVIDER_PARSE;
         }
-        if ("urban_airship".equals(pushProvider)) {
+        if (pushProvider.contains("urban_airship")) {
             return Apptentive.PUSH_PROVIDER_URBAN_AIRSHIP;
         }
 
@@ -86,11 +86,11 @@ final class PluginUtils {
     }
 
     private static Level parseLogLevel(String value) {
-        if ("verbose".equals(value)) return Level.VERBOSE;
-        if ("debug".equals(value)) return Level.DEBUG;
-        if ("info".equals(value)) return Level.INFO;
-        if ("warn".equals(value)) return Level.WARN;
-        if ("error".equals(value)) return Level.ERROR;
+        if (value.contains("verbose")) return Level.VERBOSE;
+        if (value.contains("debug")) return Level.DEBUG;
+        if (value.contains("info")) return Level.INFO;
+        if (value.contains("warn")) return Level.WARN;
+        if (value.contains("error")) return Level.ERROR;
         return Level.UNKNOWN;
     }
 }

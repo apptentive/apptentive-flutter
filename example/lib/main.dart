@@ -4,9 +4,23 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:apptentive_flutter/apptentive_flutter.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Apptentive: handling a background message");
+  print("Notification Data: ${message.data}");
+}
+
+String? integration_token = "";
+
+void main() async {
+  if (Platform.isAndroid) {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  }
   runApp(MyApp());
 }
 
@@ -24,6 +38,11 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
+    // Save the device token for our Firebase push integration on Android
+    if (Platform.isAndroid) {
+      integration_token = await FirebaseMessaging.instance.getToken();
+    }
+
     final String apptentiveKey;
     final String apptentiveSignature;
     if (Platform.isAndroid) {
@@ -50,23 +69,16 @@ class _MyAppState extends State<MyApp> {
         enableDebugLogFile: true,
         gatherCarrierInfo: true
     );
+    ApptentiveFlutter.surveyFinishedCallback = (bool completed) {
+      print("Survey Finished?: ${completed}");
+    };
+    ApptentiveFlutter.messageCenterUnreadCountChangedNotification = (int count) {
+      print("Message Center unread message count is now: ${count}");
+    };
+    ApptentiveFlutter.messageSentNotification = (String sentByUser) {
+      print("Message sent by user: " + sentByUser);
+    };
     bool successful = await ApptentiveFlutter.register(configuration);
-
-    // Set callback/notification functions
-    if (successful) {
-      ApptentiveFlutter.surveyFinishedCallback = (bool completed) {
-        print("Survey Finished?: ${completed}");
-      };
-      ApptentiveFlutter.authenticationFailedCallback = (String reason, String errorMessage) {
-        print("Authentication failed because due to following reason: ${reason} Error message: ${errorMessage}");
-      };
-      ApptentiveFlutter.messageCenterUnreadCountChangedNotification = (int count) {
-        print("Message Center unread message count is now: ${count}");
-      };
-      ApptentiveFlutter.messageSentNotification = (String sentByUser) {
-        print("Message sent by user: " + sentByUser);
-      };
-    }
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
@@ -97,13 +109,54 @@ class _MyAppState extends State<MyApp> {
 
               person(context),
 
-              OutlinedButton(
-                onPressed: () {
-                  ApptentiveFlutter.showMessageCenter();
-                },
-                child: Text('Show Message Center'),
-              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children:[
+                        OutlinedButton(
+                          onPressed: () {
+                            ApptentiveFlutter.showMessageCenter();
+                          },
+                          child: Text('Show Message Center'),
+                        ),
 
+                        OutlinedButton(
+                          onPressed: () {
+                            ApptentiveFlutter.getUnreadMessageCount().then((count) {
+                              print("Unread Message Count: $count");
+                            });
+                          },
+                          child: Text('Print Unread Message Count'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children:[
+                        OutlinedButton(
+                          onPressed: () {
+                            ApptentiveFlutter.registerListeners();
+                          },
+                          child: Text('Register Listeners'),
+                        ),
+
+                        OutlinedButton(
+                          onPressed: () {
+                            if (integration_token != null) {
+                              ApptentiveFlutter.setPushNotificationIntegration(provider: PushProvider.apptentive, token: integration_token!);
+                            } else {
+                              print("Apptentive Error: Push integration token is null.");
+                            }
+                          },
+                          child: Text('Set Push Notification Integration'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -119,9 +172,9 @@ class _MyAppState extends State<MyApp> {
         onSubmit: (eventName) async {
           ApptentiveFlutter.engage(eventName: eventName).then((value) {
             if (!value) {
-              Fluttertoast.showToast(msg: "Not engaged");
+              print("Not engaged");
             } else {
-              Fluttertoast.showToast(msg: "${eventName} engaged!");
+              print("${eventName} engaged!");
             }
           });
         },
@@ -139,9 +192,9 @@ class _MyAppState extends State<MyApp> {
         onSubmit: (personCustomDataMap) async {
           ApptentiveFlutter.addCustomPersonData(key: personCustomDataMap["name"]!, value: personCustomDataMap["value"]!).then((value) {
             if (!value) {
-              Fluttertoast.showToast(msg: "Person Custom Data Not Added");
+              print("Person Custom Data Not Added");
             } else {
-              Fluttertoast.showToast(msg: "Person Custom Data Added!");
+              print("Person Custom Data Added!");
             }
           });
         },
@@ -158,9 +211,9 @@ class _MyAppState extends State<MyApp> {
         onSubmit: (personCustomDataName) async {
           ApptentiveFlutter.removeCustomPersonData(key: personCustomDataName).then((value) {
             if (!value) {
-              Fluttertoast.showToast(msg: "Custom Person Data Not Removed");
+              print("Custom Person Data Not Removed");
             } else {
-              Fluttertoast.showToast(msg: "Custom Person Data Removed!");
+              print("Custom Person Data Removed!");
             }
           });
         },
@@ -178,9 +231,9 @@ class _MyAppState extends State<MyApp> {
         onSubmit: (deviceCustomDataMap) async {
           ApptentiveFlutter.addCustomDeviceData(key: deviceCustomDataMap["name"]!, value: deviceCustomDataMap["value"]!).then((value) {
             if (!value) {
-              Fluttertoast.showToast(msg: "Device Custom Data Not Added");
+              print("Device Custom Data Not Added");
             } else {
-              Fluttertoast.showToast(msg: "Device Custom Data Added!");
+              print("Device Custom Data Added!");
             }
           });
         },
@@ -197,9 +250,9 @@ class _MyAppState extends State<MyApp> {
         onSubmit: (deviceCustomDataName) async {
           ApptentiveFlutter.removeCustomDeviceData(key: deviceCustomDataName).then((value) {
             if (!value) {
-              Fluttertoast.showToast(msg: "Custom Device Data Not Removed");
+              print("Custom Device Data Not Removed");
             } else {
-              Fluttertoast.showToast(msg: "Custom Device Data Removed!");
+              print("Custom Device Data Removed!");
             }
           });
         },

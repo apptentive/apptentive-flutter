@@ -2,9 +2,10 @@ group 'com.apptentive.apptentive_flutter'
 version '1.0'
 
 buildscript {
+    ext.kotlin_version = '1.6.0'
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
@@ -15,7 +16,7 @@ buildscript {
 rootProject.allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
@@ -30,6 +31,6 @@ android {
 }
 
 dependencies {
-    implementation 'com.apptentive:apptentive-android:5.7.1'
+    implementation 'com.apptentive:apptentive-android:5.8.3'
     testImplementation 'junit:junit:4.13.2'
 }

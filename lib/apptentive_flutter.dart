@@ -43,7 +43,6 @@ class ApptentiveConfiguration {
 enum PushProvider { apptentive, amazon, parse, urban_airship }
 
 typedef SurveyFinishedCallback = void Function(bool completed);
-typedef AuthenticationFailedCallback = void Function(String reason, String errorMessage);
 typedef MessageCenterUnreadCountChangedNotification = void Function(int count);
 typedef MessageSentNotification = void Function(String sentByUser);
 
@@ -52,7 +51,6 @@ class ApptentiveFlutter {
       ..setMethodCallHandler(_nativeCallback);
 
   static SurveyFinishedCallback? surveyFinishedCallback;
-  static AuthenticationFailedCallback? authenticationFailedCallback;
   static MessageCenterUnreadCountChangedNotification? messageCenterUnreadCountChangedNotification;
   static MessageSentNotification? messageSentNotification;
 
@@ -61,26 +59,20 @@ class ApptentiveFlutter {
       case 'onSurveyFinished':
         bool completed = methodCall.arguments["completed"];
         surveyFinishedCallback?.call(completed);
-        return null;
-      case 'onAuthenticationFailed':
-        String reason = methodCall.arguments["reason"];
-        String errorMessage = methodCall.arguments["errorMessage"];
-        if (errorMessage == null) {
-          errorMessage = "";
-        }
-        authenticationFailedCallback?.call(reason, errorMessage);
-        return null;
-      case 'messageCenterUnreadCountChanged':
+        break;
+      case 'onUnreadMessageCountChanged':
         int count = methodCall.arguments["count"];
         messageCenterUnreadCountChangedNotification?.call(count);
-        return null;
+        break;
       case 'onMessageSent':
+        await _channel.invokeMethod('requestPushPermissions', {});
         String sentByUser = methodCall.arguments["sentByUser"];
         messageSentNotification?.call(sentByUser);
-        return null;
+        break;
       default:
         throw MissingPluginException('notImplemented');
     }
+    return null;
   }
 
   static Future<bool> register(ApptentiveConfiguration configuration) async {
@@ -154,18 +146,21 @@ class ApptentiveFlutter {
     return successful;
   }
 
-  static Future<bool> login({required String token}) async {
-    final bool successful = await _channel.invokeMethod('login', {
-      "token" : token
-    });
-    return successful;
-  }
-
   static Future<bool> setPushNotificationIntegration({required PushProvider provider, required String token}) async {
     final bool successful = await _channel.invokeMethod('setPushNotificationIntegration', {
       "push_provider" : provider.toString(),
       "token" : token
     });
+    return successful;
+  }
+
+  static Future<int> getUnreadMessageCount() async {
+    final int count = await _channel.invokeMethod('getUnreadMessageCount', {});
+    return count;
+  }
+
+  static Future<bool> registerListeners() async {
+    final bool successful = await _channel.invokeMethod('registerListeners', {});
     return successful;
   }
 
