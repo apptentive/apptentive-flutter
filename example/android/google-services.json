@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "864112465884",
+    "firebase_url": "https://apptentive-example-app.firebaseio.com",
+    "project_id": "apptentive-example-app",
+    "storage_bucket": "apptentive-example-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:864112465884:android:f009d8e2b2851a1c",
+        "android_client_info": {
+          "package_name": "com.apptentive.apptentive_flutter_example"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "864112465884-vdhbg3arakm2n71a9rhuuui843dq0q2j.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "864112465884-5d35u6lus8uqmgieh30aeg645ofkr5ni.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBki4xmuidZeU9UjTJscOKIysSGUWGb-Ps"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

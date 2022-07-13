@@ -175,7 +175,6 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
 
   private void engage(@NonNull MethodCall call, @NonNull final Result result) {
     final String event = call.argument("event_name");
-    final Map<String, Object> customData = call.argument("custom_data");
 
     if (application == null) {
       result.error(ERROR_CODE_NO_APPLICATION, "Unable to engage event: " + event + ", bound Application is null.", null);
@@ -187,7 +186,7 @@ public class ApptentiveFlutterPlugin implements FlutterPlugin, MethodCallHandler
       public void onFinish(boolean engaged) {
         result.success(engaged);
       }
-    }, customData);
+    });
   }
 
   private void canShowInteraction(@NonNull MethodCall call, @NonNull final Result result) {

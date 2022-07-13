@@ -70,10 +70,10 @@ class _MyAppState extends State<MyApp> {
         gatherCarrierInfo: true
     );
     ApptentiveFlutter.surveyFinishedCallback = (bool completed) {
-      print("Survey Finished?: ${completed}");
+      print("Survey Finished?: $completed");
     };
     ApptentiveFlutter.messageCenterUnreadCountChangedNotification = (int count) {
-      print("Message Center unread message count is now: ${count}");
+      print("Message Center unread message count is now: $count");
     };
     ApptentiveFlutter.messageSentNotification = (String sentByUser) {
       print("Message sent by user: " + sentByUser);
@@ -145,6 +145,7 @@ class _MyAppState extends State<MyApp> {
                         OutlinedButton(
                           onPressed: () {
                             if (integration_token != null) {
+                              print("APPTENTIVE FLUTTER: Integration Token: " + integration_token!);
                               ApptentiveFlutter.setPushNotificationIntegration(provider: PushProvider.apptentive, token: integration_token!);
                             } else {
                               print("Apptentive Error: Push integration token is null.");
@@ -174,7 +175,7 @@ class _MyAppState extends State<MyApp> {
             if (!value) {
               print("Not engaged");
             } else {
-              print("${eventName} engaged!");
+              Fluttertoast.showToast(msg: "$eventName engaged!");
             }
           });
         },
@@ -190,13 +191,34 @@ class _MyAppState extends State<MyApp> {
         hint: "Person Data Name",
         hint2: "Person Data Value",
         onSubmit: (personCustomDataMap) async {
-          ApptentiveFlutter.addCustomPersonData(key: personCustomDataMap["name"]!, value: personCustomDataMap["value"]!).then((value) {
+          var customDataArg = personCustomDataMap["value"]!;
+          // Attempt to parse as an int
+          var customDataValue;
+          customDataValue = int.tryParse(customDataArg);
+          if (customDataValue == null) {
+            // Attempt to parse as a double
+            customDataValue = double.tryParse(customDataArg);
+            if (customDataValue == null) {
+              // Attempt to parse as a bool
+              if (customDataArg.toLowerCase() == "true") {
+                customDataValue = true;
+              } else if (customDataArg.toLowerCase() == "false") {
+                customDataValue = false;
+              } else {
+                // Is a String
+                customDataValue = customDataArg;
+              }
+            }
+          }
+
+          ApptentiveFlutter.addCustomPersonData(key: personCustomDataMap["name"]!, value: customDataValue).then((value) {
             if (!value) {
               print("Person Custom Data Not Added");
             } else {
               print("Person Custom Data Added!");
             }
           });
+
         },
         buttonText: "Add"
       )
@@ -229,13 +251,34 @@ class _MyAppState extends State<MyApp> {
         hint: "Device Data Name",
         hint2: "Device Data Value",
         onSubmit: (deviceCustomDataMap) async {
-          ApptentiveFlutter.addCustomDeviceData(key: deviceCustomDataMap["name"]!, value: deviceCustomDataMap["value"]!).then((value) {
+          var customDataArg = deviceCustomDataMap["value"]!;
+          // Attempt to parse as an int
+          var customDataValue;
+          customDataValue = int.tryParse(customDataArg);
+          if (customDataValue == null) {
+            // Attempt to parse as a double
+            customDataValue = double.tryParse(customDataArg);
+            if (customDataValue == null) {
+              // Attempt to patse as a bool
+              if (customDataArg.toLowerCase() == "true") {
+                customDataValue = true;
+              } else if (customDataArg.toLowerCase() == "false") {
+                customDataValue = false;
+              } else {
+                // Is a String
+                customDataValue = customDataArg;
+              }
+            }
+          }
+
+          ApptentiveFlutter.addCustomDeviceData(key: deviceCustomDataMap["name"]!, value: customDataValue).then((value) {
             if (!value) {
               print("Device Custom Data Not Added");
             } else {
               print("Device Custom Data Added!");
             }
           });
+
         },
         buttonText: "Add"
       )
@@ -303,7 +346,7 @@ class _MyAppState extends State<MyApp> {
           onPressed: () {
             onSubmit(controller.text);
           },
-          child: Text("${buttonText}")
+          child: Text("$buttonText")
         ),
       ],
     );
@@ -337,7 +380,7 @@ class _MyAppState extends State<MyApp> {
           onPressed: () {
             onSubmit({"name":controller.text,"value":controller2.text});
           },
-          child: Text("${buttonText}")
+          child: Text("$buttonText")
         ),
       ],
     );
