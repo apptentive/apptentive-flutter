@@ -11,6 +11,7 @@ Pushing to Cloudsmith
 Now that the changeset has been merged, it's time to create a new release!
 
 Note: Before following these steps, make sure you have installed and authenticated with the Cloudsmith CLI.
+See here for instructions installing Cloudsmith CLI https://confluence.alkami.com/adn/flutter/topic-guides/cloudsmith#Cloudsmith-Installingcloudsmith-cli
 
 
 Create a tar file of the package
@@ -32,6 +33,3 @@ Example:
 Push tag to the main branch
     
     git push origin <tag_name>
-
-Cloudsmith CLI
-See here for instructions installing Cloudsmith CLI https://confluence.alkami.com/adn/flutter/topic-guides/cloudsmith#Cloudsmith-Installingcloudsmith-cli
