@@ -16,7 +16,7 @@ See here for instructions installing Cloudsmith CLI https://confluence.alkami.co
 
 Create a tar file of the package
 
-    tar --exclude='.dart_tool' --exclude='example' -czvf package.tar.gz ./*
+    tar --exclude='.dart_tool' --exclude='example' --exclude='build' -czvf package.tar.gz ./*
 
 Push the package tar file to Cloudsmith using the CLI
 
