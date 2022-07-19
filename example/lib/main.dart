@@ -175,7 +175,7 @@ class _MyAppState extends State<MyApp> {
             if (!value) {
               print("Not engaged");
             } else {
-              Fluttertoast.showToast(msg: "$eventName engaged!");
+              print("$eventName engaged!");
             }
           });
         },
