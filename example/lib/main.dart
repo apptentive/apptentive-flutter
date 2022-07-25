@@ -120,7 +120,6 @@ class _MyAppState extends State<MyApp> {
                           },
                           child: Text('Show Message Center'),
                         ),
-
                         OutlinedButton(
                           onPressed: () {
                             ApptentiveFlutter.getUnreadMessageCount().then((count) {
