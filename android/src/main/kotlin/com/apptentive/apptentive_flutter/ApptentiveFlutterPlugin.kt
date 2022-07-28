@@ -32,7 +32,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   private var activity: Activity? = null
 
   // Result error code
-  private const val ERROR_CODE: String = "Apptentive Error"
+  private val ERROR_CODE: String = "Apptentive Error"
 
 
 
@@ -126,7 +126,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   }
 
   // Check if Message Center can be shown
-  private fun canShowMessageCenter(call: MethodCall, result: Result) {
+  private fun canShowMessageCenter(result: Result) {
     try {
       Apptentive.canShowMessageCenter() { result.success(it) }
     } catch(e: Exception) {
