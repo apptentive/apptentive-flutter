@@ -1,3 +1,13 @@
+# 2022-07-28 - v6.0.1
+
+- Apptentive Android SDK: 5.8.3
+- Apptentive iOS SDK: 6.0.3
+
+#### Bugs Fixed
+
+- Fixed problems in the Android plugin code that was preventing it from building
+- Updated dependencies in the example app and updated Podfile to link with static libraries
+
 # 2022-07-25 - v6.0.0
 
 - Apptentive Android SDK: 5.8.3
