@@ -1,3 +1,12 @@
+# 2022-07-28 - v6.0.2
+
+- Apptentive Android SDK: 5.8.3
+- Apptentive iOS SDK: 6.0.3
+
+#### Bugs Fixed
+
+- Removed extra `'` in flutter file.
+
 # 2022-07-28 - v6.0.1
 
 - Apptentive Android SDK: 5.8.3
