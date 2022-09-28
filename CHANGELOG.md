@@ -1,3 +1,15 @@
+# 5.15.0
+
+- chore:DEV-139004 publish to cloudsmith
+
+# 5.14.0
+
+- chore:DEV-139004 publish to cloudsmith
+
+# 5.13.0
+
+- chore: bump to 5.11.0
+
 # 2022-04-05 - v.5.8.3
 - Apptentive Android SDK: 5.8.3
 - Apptentive iOS SDK: 5.3.4

@@ -1,13 +1,14 @@
 name: apptentive_flutter
 description: Apptentive SDK for Flutter
-version: 5.12.0
+version: 5.15.0
 repository: https://github.com/apptentive/apptentive-flutter
 issue_tracker: https://github.com/apptentive/apptentive-flutter/issues
 documentation: https://learn.apptentive.com/knowledge-base/apptentive-sdk-flutter-plugin-guide/
+publish_to: https://dart.cloudsmith.io/alkami/flutter/
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=1.20.0"
+  sdk: '>=2.15.0 <3.0.0'
+  flutter: ">=2.5.0"
 
 dependencies:
   flutter:
@@ -16,6 +17,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  mplat_pr_tools:
+    hosted: https://dart.cloudsmith.io/alkami/flutter/
+    version: ^1.0.0
 
 flutter:
   plugin:

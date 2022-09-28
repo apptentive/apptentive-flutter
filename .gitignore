@@ -1,3 +1,7 @@
+# files generated during test coverage
+coverage/
+test/generated_coverage_helper_test.dart
+
 # Miscellaneous
 *.class
 *.lock
@@ -102,9 +106,6 @@ unlinked_spec.ds
 
 # macOS
 **/macos/Flutter/GeneratedPluginRegistrant.swift
-
-# Coverage
-coverage/
 
 # Symbols
 app.*.symbols
