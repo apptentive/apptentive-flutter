@@ -6,19 +6,19 @@ environment:
   sdk: '>=2.15.0 <3.0.0'
 
 dependencies:
-  flutter:
-    sdk: flutter
+  alkami_core_dependencies: 
+    hosted: https://dart.cloudsmith.io/alkami/flutter/
+    version: ^2.1.0
 
   apptentive_flutter:
     path: ../
 
-  cupertino_icons: ^1.0.2
-  firebase_core: 1.10.5
-  firebase_messaging: ^11.2.2
+  firebase_messaging: ^14.0.3
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
+  alkami_core_dev_dependencies: 
+    hosted: https://dart.cloudsmith.io/alkami/flutter/
+    version: ^2.1.0
 
 flutter:
   uses-material-design: true

@@ -1,6 +1,6 @@
+import 'package:alkami_core_dependencies/alkami_core_dependencies.dart';
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 
 // Sets which level of logs will be printed by the Apptentive SDK
 enum LogLevel { verbose, debug, info, warn, error }

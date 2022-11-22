@@ -1,11 +1,11 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:alkami_core_dependencies/alkami_core_dependencies.dart';
+// ignore_for_file: non_constant_identifier_names, unused_local_variable
+
 import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:apptentive_flutter/apptentive_flutter.dart';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -70,10 +70,10 @@ class _MyAppState extends State<MyApp> {
         enableDebugLogFile: true,
         gatherCarrierInfo: true);
     ApptentiveFlutter.surveyFinishedCallback = (bool completed) {
-      print("Survey Finished?: ${completed}");
+      print("Survey Finished?: $completed");
     };
     ApptentiveFlutter.messageCenterUnreadCountChangedNotification = (int count) {
-      print("Message Center unread message count is now: ${count}");
+      print("Message Center unread message count is now: $count");
     };
     ApptentiveFlutter.messageSentNotification = (String sentByUser) {
       print("Message sent by user: " + sentByUser);
@@ -166,7 +166,7 @@ class _MyAppState extends State<MyApp> {
               if (!value) {
                 print("Not engaged");
               } else {
-                print("${eventName} engaged!");
+                print("$eventName engaged!");
               }
             });
           },
@@ -285,7 +285,7 @@ class _MyAppState extends State<MyApp> {
             onPressed: () {
               onSubmit(controller.text);
             },
-            child: Text("${buttonText}")),
+            child: Text("$buttonText")),
       ],
     );
   }
@@ -316,7 +316,7 @@ class _MyAppState extends State<MyApp> {
             onPressed: () {
               onSubmit({"name": controller.text, "value": controller2.text});
             },
-            child: Text("${buttonText}")),
+            child: Text("$buttonText")),
       ],
     );
   }
