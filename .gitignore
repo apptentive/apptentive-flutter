@@ -14,6 +14,9 @@ test/generated_coverage_helper_test.dart
 .history
 .svn/
 
+# Flutter Version Management related
+.fvm/
+
 # IntelliJ related
 *.iml
 *.ipr

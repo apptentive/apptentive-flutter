@@ -1,8 +1,8 @@
 name: Release Package
 
 env:
-  dart_version: 2.16.1
-  flutter_version: 2.10.3
+  dart_version: 2.19.2
+  flutter_version: 3.7.3
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 on:
