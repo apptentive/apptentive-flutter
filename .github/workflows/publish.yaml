@@ -37,8 +37,14 @@ jobs:
       - name: Authorize Cloudsmith
         run:  ./shell_scripts/authorize_cloudsmith.sh ${{ secrets.CLOUDSMITH_API_KEY }}
 
+      - name: Activate mplat
+        shell: bash
+        run: |
+          dart pub global activate mobile_platform_cli_dart \
+            --hosted-url https://dart.cloudsmith.io/alkami/flutter/
+
       - name: Pub get
         run: flutter pub get
 
       - name: Publish
-        run: dart pub run mplat_pr_tools publish
+        run: mplat_dart publish

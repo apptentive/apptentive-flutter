@@ -1,0 +1,2 @@
+validate-pr:
+  test: false

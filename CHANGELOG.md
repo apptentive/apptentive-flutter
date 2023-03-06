@@ -1,3 +1,7 @@
+# 7.2.0
+
+- chore:DEV-144619 switch mplat_pr_tools to mplat_dart
+
 # 7.1.0
 
 - Upgrade to Flutter 3
