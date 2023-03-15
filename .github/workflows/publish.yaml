@@ -40,11 +40,11 @@ jobs:
       - name: Activate mplat
         shell: bash
         run: |
-          dart pub global activate mobile_platform_cli_dart \
+          dart pub global activate mplat \
             --hosted-url https://dart.cloudsmith.io/alkami/flutter/
 
       - name: Pub get
         run: flutter pub get
 
       - name: Publish
-        run: mplat_dart publish
+        run: mplat publish

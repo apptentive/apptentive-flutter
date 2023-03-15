@@ -1,3 +1,7 @@
+# 7.3.0
+
+- chore:DEV-151337 rename mplat_dart to mplat
+
 # 7.2.0
 
 - chore:DEV-144619 switch mplat_pr_tools to mplat_dart
