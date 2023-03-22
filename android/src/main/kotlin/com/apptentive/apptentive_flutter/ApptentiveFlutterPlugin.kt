@@ -17,7 +17,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
 @OptIn(InternalUseOnly::class)
-class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
+class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, ApptentiveActivityInfo {
 
   // The MethodChannel that will communicate between Flutter and native Android
   // This local reference serves to register the plugin with the Flutter Engine
@@ -48,13 +48,13 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   // When plugin is attached to an Activity, register Apptentive Activity Callback
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
     activity = binding.activity
-//    Apptentive.registerApptentiveActivityInfoCallback(this)
+    Apptentive.registerApptentiveActivityInfoCallback(this)
   }
 
   // When re-attached to activity, set current activity context and re-register Apptentive Activity Callback
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
     activity = binding.activity
-//    Apptentive.registerApptentiveActivityInfoCallback(this)
+    Apptentive.registerApptentiveActivityInfoCallback(this)
   }
 
   // When detached from activity, set current activity context to null
@@ -97,9 +97,9 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
 
 
 // region Apptentive plugin methods
-//  override fun getApptentiveActivityInfo(): Activity {
-//    return activity ?: throw IllegalArgumentException("Activity cannot be null")
-//  }
+  override fun getApptentiveActivityInfo(): Activity {
+    return activity ?: throw IllegalArgumentException("Activity cannot be null")
+  }
 
   private fun register(call: MethodCall, result: Result) {
     val configuration = unpackConfiguration(call.argument("configuration")!!)
@@ -110,6 +110,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       result.error(ERROR_CODE, "Failed to register Apptentive instance.", e.toString())
     }
   }
+
 
   private fun engage(call: MethodCall, result: Result) {
     val event: String? = call.argument("event_name")
