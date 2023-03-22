@@ -91,9 +91,7 @@ class ApptentiveFlutter {
   // Register the Apptentive SDK with the Apptentive Configuration
   static Future<bool> register(ApptentiveConfiguration configuration) async {
     final bool registered = await _channel.invokeMethod('register', {
-      "configuration" : _packConfiguration(configuration),
-      "distributionName" : "Flutter",
-      "distributionVersion" : "6.0.3",
+      "configuration" : _packConfiguration(configuration)
     });
     return registered;
   }
