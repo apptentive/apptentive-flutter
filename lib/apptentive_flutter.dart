@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:package_info/package_info.dart';
 
 import 'package:flutter/services.dart';
 
@@ -20,30 +21,32 @@ class ApptentiveConfiguration {
   final String apptentiveKey;
   final String apptentiveSignature;
   final LogLevel logLevel;
+  final bool shouldInheritAppTheme;
   final bool shouldEncryptStorage;
   final bool shouldSanitizeLogMessages;
-  final bool troubleshootingModeEnabled;
-  final bool shouldCollectAndroidIdOnPreOreoTargets;
-  final ApptentiveTermsAndConditions? surveyTermsAndConditions;
-  final bool shouldShowInfoButton;
-  final bool enableDebugLogFile;
-  final bool gatherCarrierInfo;
-  // final int ratingInteractionThrottleLength;
-  // final String? customAppStoreURL;
+  final String distributionName;
+  final String distributionVersion;
+  final int ratingInteractionThrottleLength;
+  final String? customAppStoreURL;
 
   ApptentiveConfiguration({required this.apptentiveKey, required this.apptentiveSignature,
     this.logLevel = LogLevel.info,
+    this.shouldInheritAppTheme = true,
     this.shouldEncryptStorage = false,
     this.shouldSanitizeLogMessages = true,
-    this.troubleshootingModeEnabled = true,
-    this.shouldCollectAndroidIdOnPreOreoTargets = true,
-    this.surveyTermsAndConditions,
-    this.shouldShowInfoButton = true,
-    this.enableDebugLogFile = true,
-    this.gatherCarrierInfo = true
-    // this.ratingInteractionThrottleLength = 604800000,
-    // this.customAppStoreURL = null
+    this.distributionName = "Flutter",
+    this.distributionVersion = "6.0.4", // TODO
+    this.ratingInteractionThrottleLength = 604800000, // 1 week
+    this.customAppStoreURL
   });
+
+  String getPluginVersion() {
+    String version = "";
+    PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+      version = packageInfo.version;
+    });
+    return version;
+  }
 }
 
 enum PushProvider { apptentive, amazon, parse, urban_airship }
@@ -205,13 +208,13 @@ class ApptentiveFlutter {
       "key": configuration.apptentiveKey,
       "signature": configuration.apptentiveSignature,
       "log_level": configuration.logLevel.toString(),
+      "should_inherit_theme":configuration.shouldInheritAppTheme,
       "should_encrypt_storage": configuration.shouldEncryptStorage,
       "should_sanitize_log_messages": configuration.shouldSanitizeLogMessages,
-      "troubleshooting_mode_enabled": configuration.troubleshootingModeEnabled,
-      "terms_and_conditions": _packTermsAndConditions(configuration.surveyTermsAndConditions),
-      "should_show_info_button": configuration.shouldShowInfoButton,
-      "enable_debug_log_file": configuration.enableDebugLogFile,
-      "gather_carrier_info": configuration.gatherCarrierInfo,
+      "rating_interaction_throttle_length": configuration.ratingInteractionThrottleLength,
+      "custom_app_store_url": configuration.customAppStoreURL,
+      "distribution_name": configuration.distributionName,
+      "distribution_version": configuration.distributionVersion
     };
   }
 

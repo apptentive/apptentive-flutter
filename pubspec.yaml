@@ -1,6 +1,6 @@
 name: apptentive_flutter
 description: Apptentive SDK for Flutter
-version: 6.0.3
+version: 6.0.4
 repository: https://github.com/apptentive/apptentive-flutter
 issue_tracker: https://github.com/apptentive/apptentive-flutter/issues
 documentation: https://learn.apptentive.com/knowledge-base/apptentive-sdk-flutter-plugin-guide/
@@ -10,6 +10,7 @@ environment:
   flutter: ">=1.20.0"
 
 dependencies:
+  package_info: ^2.0.0
   flutter:
     sdk: flutter
 
