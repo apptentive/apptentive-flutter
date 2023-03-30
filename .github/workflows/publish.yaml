@@ -10,7 +10,7 @@ on:
     branches:
       - master
       - main
-      - release/**
+      - hotfix/**
 
 jobs:
   release_package:
