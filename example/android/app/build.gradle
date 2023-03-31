@@ -50,7 +50,6 @@ android {
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
 //    implementation platform('com.google.firebase:firebase-bom:31.4.0')
-    implementation 'com.apptentive:apptentive-kit-android:6.0.4'
 }
 
 flutter {

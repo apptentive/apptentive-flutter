@@ -86,7 +86,9 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
 
   // Delegate the method call to the proper method
   override fun onMethodCall(call: MethodCall, result: Result) {
-    if (checkIfActivityIsNull(result)) { return }
+    if (checkIfActivityIsNull(result)) return
+    else Apptentive.registerApptentiveActivityInfoCallback(activityInfo)
+
     when (call.method) {
       "register" -> register(call, result)
       "engage" -> engage(call, result)
@@ -132,12 +134,6 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       result.error(ERROR_CODE,"Unable to call event: event name is null.", null)
       return
     }
-
-    if (activity == null) {
-      result.error(ERROR_CODE,"Unable to engage: activity is null.", null)
-      return
-    }
-
     try {
       Apptentive.engage(event) { engagementResult ->
         if (engagementResult is EngagementResult.InteractionShown) result.success(true)
