@@ -2,11 +2,9 @@ package com.apptentive.apptentive_flutter
 
 // TODO test push notifications
 
-import android.app.Application
 import android.app.Activity
-import apptentive.com.android.feedback.Apptentive
-import apptentive.com.android.feedback.ApptentiveActivityInfo
-import apptentive.com.android.feedback.ApptentiveConfiguration
+import android.app.Application
+import apptentive.com.android.feedback.*
 import apptentive.com.android.util.*
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -16,22 +14,25 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
+
 @OptIn(InternalUseOnly::class)
-class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, ApptentiveActivityInfo {
+class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   // The MethodChannel that will communicate between Flutter and native Android
   // This local reference serves to register the plugin with the Flutter Engine
   // and unregister it when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
-
-  // Current Application object
   private lateinit var application: Application
-
-  // Current Activity object
   private var activity: Activity? = null
-
-  // Result error code
   private val ERROR_CODE: String = "Apptentive Error"
+  private var isApptentiveRegistered: Boolean = false
+
+
+  private val activityInfo = object : ApptentiveActivityInfo {
+    override fun getApptentiveActivityInfo(): Activity {
+      return activity ?: throw IllegalArgumentException("Activity cannot be null")
+    }
+  }
 
   //region lifecycle methods
 
@@ -43,38 +44,48 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
   }
 
   // Set channel method handler to null when plugin is detached
-  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) { channel.setMethodCallHandler(null) }
+  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+    channel.setMethodCallHandler(null)
+  }
 
   // When plugin is attached to an Activity, register Apptentive Activity Callback
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
     activity = binding.activity
-    Apptentive.registerApptentiveActivityInfoCallback(this)
+
+    if (isApptentiveRegistered) {
+      Apptentive.registerApptentiveActivityInfoCallback(activityInfo)
+    }
   }
 
   // When re-attached to activity, set current activity context and re-register Apptentive Activity Callback
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
     activity = binding.activity
-    Apptentive.registerApptentiveActivityInfoCallback(this)
+    Apptentive.registerApptentiveActivityInfoCallback(activityInfo)
+
+    Log.d(LogTag("Flutter"), "register ApptentiveActivityInfoCallback on onReattachedToActivityForConfigChanges")
   }
 
   // When detached from activity, set current activity context to null
   override fun onDetachedFromActivity() {
     activity = null
     Apptentive.unregisterApptentiveActivityInfoCallback()
+
+    Log.d(LogTag("Flutter"), "unregister ApptentiveActivityInfoCallback onDetachedFromActivity")
   }
 
   // When detached from activity, set current activity context to null
   override fun onDetachedFromActivityForConfigChanges() {
     activity = null
     Apptentive.unregisterApptentiveActivityInfoCallback()
+
+    Log.d(LogTag("Flutter"), "unregister ApptentiveActivityInfoCallback onDetachedFromActivity")
   }
 
   // Delegate the method call to the proper method
   override fun onMethodCall(call: MethodCall, result: Result) {
     if (checkIfActivityIsNull(result)) { return }
     when (call.method) {
-      //TODO register
-      //"register" ->  (call, result)
+      "register" -> register(call, result)
       "engage" -> engage(call, result)
       "showMessageCenter" -> showMessageCenter(result)
       "canShowMessageCenter" -> canShowMessageCenter(result)
@@ -92,25 +103,25 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
       else -> result.notImplemented()
     }
   }
-
 // endregion
 
-
 // region Apptentive plugin methods
-  override fun getApptentiveActivityInfo(): Activity {
-    return activity ?: throw IllegalArgumentException("Activity cannot be null")
-  }
 
   private fun register(call: MethodCall, result: Result) {
     val configuration = unpackConfiguration(call.argument("configuration")!!)
     try {
-      Apptentive.register(application, configuration)
-      result.success(true)
+      Apptentive.register(application, configuration) { registerResult ->
+        if (registerResult is RegisterResult.Success) {
+          isApptentiveRegistered = true
+          Log.d(LogTag("Flutter"), "register ApptentiveActivityInfoCallback")
+          Apptentive.registerApptentiveActivityInfoCallback(activityInfo)
+        }
+        result.success(registerResult is RegisterResult.Success)
+      }
     } catch (e: Exception) {
       result.error(ERROR_CODE, "Failed to register Apptentive instance.", e.toString())
     }
   }
-
 
   private fun engage(call: MethodCall, result: Result) {
     val event: String? = call.argument("event_name")
@@ -119,7 +130,10 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
       return
     }
     try {
-      Apptentive.engage(event) { result.success(it) }
+      Apptentive.engage(event) { engagementResult ->
+        if (engagementResult is EngagementResult.InteractionShown) result.success(true)
+        else result.success(false)
+      }
     } catch (e: Exception) {
       result.error(ERROR_CODE, "Failed to engage event $event.", e.toString())
     }
@@ -128,7 +142,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
   // Show Message Center
   private fun showMessageCenter(result: Result) {
     try {
-      Apptentive.showMessageCenter { result.success(it) }
+      Apptentive.showMessageCenter { result.success(it is EngagementResult.InteractionShown) }
     } catch(e: Exception) {
       result.error(ERROR_CODE, "Failed to present Message Center.", e.toString())
     }
@@ -302,10 +316,14 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
       Log.d(LogTags.EVENT_NOTIFICATION, notificationText)
       when {
         interaction == "Survey" && name == "submit" ->
-          channel.invokeMethod("onSurveyFinished", mapOf("completed" to true))
+          activity?.runOnUiThread {
+            channel.invokeMethod("onSurveyFinished", mapOf("completed" to true))
+          }
 
         interaction == "Survey" && name != "submit" ->
-          channel.invokeMethod("onSurveyFinished", mapOf("completed" to false))
+          activity?.runOnUiThread {
+            channel.invokeMethod("onSurveyFinished", mapOf("completed" to false))
+          }
       }
     }
   }
@@ -320,7 +338,10 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
       Log.d(LogTags.MESSAGE_CENTER_NOTIFICATION, notificationText)
       if (notification?.unreadMessageCount != 0) {
-        channel.invokeMethod("onUnreadMessageCountChanged", mapOf("count" to notification?.unreadMessageCount))
+        android.util.Log.d("TESTING...........", "calling onUnreadMessageCountChanged")
+        activity?.runOnUiThread {
+          channel.invokeMethod("onUnreadMessageCountChanged", mapOf("count" to notification?.unreadMessageCount))
+        }
       }
     }
   }
@@ -353,7 +374,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     val shouldInheritAppTheme = configurationMap["should_inherit_theme"] as Boolean
     val shouldEncryptStorage = configurationMap["should_encrypt_storage"] as Boolean
     val shouldSanitizeLogMessages = configurationMap["should_sanitize_log_messages"] as Boolean
-    val ratingInteractionThrottleLength = configurationMap["rating_interaction_throttle_length"] as Long
+    val ratingInteractionThrottleLength = (configurationMap["rating_interaction_throttle_length"] as Int).toLong()
     val customAppStoreURL = configurationMap["custom_app_store_url"] as String?
     val distributionName = configurationMap["distribution_name"] as String
     val distributionVersion = configurationMap["distribution_version"] as String
@@ -386,6 +407,9 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     if (pushProvider.contains("urban_airship")) { return Apptentive.PUSH_PROVIDER_URBAN_AIRSHIP }
     throw IllegalArgumentException("Unknown push provider: $pushProvider")
   }
-
   // endregion
 }
+
+
+
+

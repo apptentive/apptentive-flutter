@@ -1,0 +1,20 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+<!--    <style name="ApptentiveThemeOverride">-->
+<!--        <item name="apptentiveLoveDialogHeaderImageStyle">@style/Apptentive.Empty</item>-->
+<!--        <item name="apptentiveLoveDialogTitleImageStyle">@style/Apptentive.Empty</item>-->
+<!--        <item name="apptentiveLoveDialogTitleImageStyle">@style/Apptentive.Empty</item>-->
+<!--        <item name="apptentiveLoveDialogNoButtonStyleAlternate">@style/Apptentive.Empty</item>-->
+<!--        <item name="apptentiveNoteHeaderImageStyle">@style/Apptentive.Empty</item>-->
+<!--        <item name="apptentiveNoteTitleOrMessageOnlyImageStyle">@style/Apptentive.Empty</item>-->
+<!--        <item name="apptentiveRatingDialogHeaderImageStyle">@style/Apptentive.Empty</item>-->
+<!--        <item name="apptentiveRatingDialogTitleImageStyle">@style/Apptentive.Empty</item>-->
+<!--        <item name="apptentiveGenericDialogHeaderImageStyle">@style/Apptentive.Empty</item>-->
+<!--        <item name="apptentiveGenericDialogTitleImageStyle">@style/Apptentive.Empty</item>-->
+<!--        <item name="apptentiveSurveyQuestionDividerStyle">@style/Apptentive.Empty</item>-->
+<!--    </style>-->
+
+<!--    <style name="Apptentive" />-->
+
+<!--    <style name="Apptentive.Empty"/>-->
+</resources>

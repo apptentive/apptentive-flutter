@@ -1,22 +1,9 @@
 import 'dart:async';
 import 'package:package_info/package_info.dart';
-
 import 'package:flutter/services.dart';
 
-// Sets which level of logs will be printed by the Apptentive SDK
 enum LogLevel { verbose, debug, info, warn, error }
 
-// Apptentive Terms and Conditions used in the Apptentive Configuration
-class ApptentiveTermsAndConditions {
-  final String? bodyText;
-  final String? linkText;
-  final String? linkURL;
-
-  ApptentiveTermsAndConditions({this.bodyText, this.linkText, this.linkURL});
-}
-
-// Configuration for registering the Apptentive SDK
-// Filled with default values
 class ApptentiveConfiguration {
   final String apptentiveKey;
   final String apptentiveSignature;
@@ -35,7 +22,7 @@ class ApptentiveConfiguration {
     this.shouldEncryptStorage = false,
     this.shouldSanitizeLogMessages = true,
     this.distributionName = "Flutter",
-    this.distributionVersion = "6.0.4", // TODO
+    this.distributionVersion = "6.0.4",
     this.ratingInteractionThrottleLength = 604800000, // 1 week
     this.customAppStoreURL
   });
@@ -91,7 +78,9 @@ class ApptentiveFlutter {
   // Register the Apptentive SDK with the Apptentive Configuration
   static Future<bool> register(ApptentiveConfiguration configuration) async {
     final bool registered = await _channel.invokeMethod('register', {
-      "configuration" : _packConfiguration(configuration)
+      "configuration" : _packConfiguration(configuration),
+      "distributionName" : "Flutter",
+      "distributionVersion" : "6.0.4",
     });
     return registered;
   }
@@ -214,17 +203,5 @@ class ApptentiveFlutter {
       "distribution_name": configuration.distributionName,
       "distribution_version": configuration.distributionVersion
     };
-  }
-
-  // Pack the terms and conditions into a map object <String, Any>
-  static Map _packTermsAndConditions(ApptentiveTermsAndConditions? conditions) {
-    if (conditions != null) {
-      return {
-        "body_text": conditions.bodyText,
-        "link_text": conditions.linkText,
-        "link_url": conditions.linkURL,
-      };
-    }
-    return {};
   }
 }

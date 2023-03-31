@@ -18,8 +18,8 @@ String? integration_token = "";
 void main() async {
   if (Platform.isAndroid) {
     WidgetsFlutterBinding.ensureInitialized();
-    // await Firebase.initializeApp();
-    // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  //  await Firebase.initializeApp();
+  //  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
   runApp(MyApp());
 }
@@ -39,9 +39,9 @@ class _MyAppState extends State<MyApp> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     // Save the device token for our Firebase push integration on Android
-    if (Platform.isAndroid) {
-      // integration_token = await FirebaseMessaging.instance.getToken();
-    }
+    // if (Platform.isAndroid) {
+    //   integration_token = await FirebaseMessaging.instance.getToken();
+    // }
 
     final String apptentiveKey;
     final String apptentiveSignature;
@@ -49,8 +49,8 @@ class _MyAppState extends State<MyApp> {
       apptentiveKey = "ANDROID-FOXFAX-d2c49794fc25";
       apptentiveSignature = "95943475cd8e40422d8574346ada1810";
     } else if (Platform.isIOS) {
-      apptentiveKey = "<YOUR_IOS_KEY>";
-      apptentiveSignature = "<YOUR_IOS_SIGNATURE>";
+      apptentiveKey = "IOS-FOXFAX-2a83473a3d40";
+      apptentiveSignature = "6467995b1dd9f8a807ff9946f4e1c9a4";
     } else {
       String os = Platform.operatingSystem;
       print("E Apptentive: Platform not supported for Apptentive Flutter Plugin: ${os}. Apptentive failed to initialize.");

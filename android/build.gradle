@@ -19,7 +19,15 @@ rootProject.allprojects {
         google()
         mavenCentral()
         maven {
-            url "https://apptentive.jfrog.io/artifactory/NewAndroidSDK"
+            def artifactoryProperties = new Properties()
+            if (file('./local.properties').exists()) {
+                artifactoryProperties.load(file('./local.properties').newDataInputStream())
+            }
+            url "https://oss.sonatype.org/content/groups/staging/"
+            credentials {
+                username = artifactoryProperties['sonatypeUsername'] ? artifactoryProperties['sonatypeUsername']:"skykelsey"
+                password = artifactoryProperties['sonatypePassword'] ? artifactoryProperties['sonatypePassword']:"6JLZ[U4QBGRcT"
+            }
         }
     }
 }
@@ -40,6 +48,6 @@ android {
 }
 
 dependencies {
-    implementation 'com.apptentive:apptentive-kit-android:6.0.4-public'
+    implementation 'com.apptentive:apptentive-kit-android:6.0.4'
     testImplementation 'junit:junit:4.13.2'
 }
