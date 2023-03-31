@@ -18,17 +18,6 @@ rootProject.allprojects {
     repositories {
         google()
         mavenCentral()
-        maven {
-            def artifactoryProperties = new Properties()
-            if (file('./local.properties').exists()) {
-                artifactoryProperties.load(file('./local.properties').newDataInputStream())
-            }
-            url "https://oss.sonatype.org/content/groups/staging/"
-            credentials {
-                username = artifactoryProperties['sonatypeUsername'] ? artifactoryProperties['sonatypeUsername']:"skykelsey"
-                password = artifactoryProperties['sonatypePassword'] ? artifactoryProperties['sonatypePassword']:"6JLZ[U4QBGRcT"
-            }
-        }
     }
 }
 

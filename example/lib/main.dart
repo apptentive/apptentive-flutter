@@ -46,11 +46,11 @@ class _MyAppState extends State<MyApp> {
     final String apptentiveKey;
     final String apptentiveSignature;
     if (Platform.isAndroid) {
-      apptentiveKey = "ANDROID-FOXFAX-d2c49794fc25";
-      apptentiveSignature = "95943475cd8e40422d8574346ada1810";
+      apptentiveKey = "<YOUR_ANDROID_KEY>";
+      apptentiveSignature = "<YOUR_ANDROID_SIGNATURE>";
     } else if (Platform.isIOS) {
-      apptentiveKey = "IOS-FOXFAX-2a83473a3d40";
-      apptentiveSignature = "6467995b1dd9f8a807ff9946f4e1c9a4";
+      apptentiveKey = "<YOUR_IOS_KEY>";
+      apptentiveSignature = "<YOUR_IOS_SIGNATURE>";
     } else {
       String os = Platform.operatingSystem;
       print("E Apptentive: Platform not supported for Apptentive Flutter Plugin: ${os}. Apptentive failed to initialize.");
