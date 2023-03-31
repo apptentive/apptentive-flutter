@@ -132,6 +132,12 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       result.error(ERROR_CODE,"Unable to call event: event name is null.", null)
       return
     }
+
+    if (activity == null) {
+      result.error(ERROR_CODE,"Unable to engage: activity is null.", null)
+      return
+    }
+
     try {
       Apptentive.engage(event) { engagementResult ->
         if (engagementResult is EngagementResult.InteractionShown) result.success(true)
