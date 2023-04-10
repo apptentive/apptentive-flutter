@@ -31,7 +31,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   private val activityInfo = object : ApptentiveActivityInfo {
     override fun getApptentiveActivityInfo(): Activity? {
       if (activity == null) {
-        Log.w(LogTag("Flutter"), "Activity should not be null")
+        Log.e(LogTag("Flutter"), "Activity should not be null")
       }
       return activity
     }
