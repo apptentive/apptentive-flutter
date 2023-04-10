@@ -405,11 +405,13 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
 
   // Values based on PushProvider enum in '../lib/apptentive_flutter.dart'
   private fun parsePushProvider(pushProvider: String): Int {
-    if (pushProvider.contains("apptentive")) { return Apptentive.PUSH_PROVIDER_APPTENTIVE }
-    if (pushProvider.contains("amazon")) { return Apptentive.PUSH_PROVIDER_AMAZON_AWS_SNS }
-    if (pushProvider.contains("parse")) { return Apptentive.PUSH_PROVIDER_PARSE }
-    if (pushProvider.contains("urban_airship")) { return Apptentive.PUSH_PROVIDER_URBAN_AIRSHIP }
-    throw IllegalArgumentException("Unknown push provider: $pushProvider")
+    when {
+        pushProvider.contains("apptentive") -> { return Apptentive.PUSH_PROVIDER_APPTENTIVE }
+        pushProvider.contains("amazon") -> { return Apptentive.PUSH_PROVIDER_AMAZON_AWS_SNS }
+        pushProvider.contains("parse") -> { return Apptentive.PUSH_PROVIDER_PARSE }
+        pushProvider.contains("urban_airship") -> { return Apptentive.PUSH_PROVIDER_URBAN_AIRSHIP }
+        else -> throw IllegalArgumentException("Unknown push provider: $pushProvider")
+    }
   }
   // endregion
 }
