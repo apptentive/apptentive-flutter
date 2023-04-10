@@ -343,7 +343,6 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
 
       Log.d(LogTags.MESSAGE_CENTER_NOTIFICATION, notificationText)
       if (notification?.unreadMessageCount != 0) {
-        android.util.Log.d("TESTING...........", "calling onUnreadMessageCountChanged")
         activity?.runOnUiThread {
           channel.invokeMethod("onUnreadMessageCountChanged", mapOf("count" to notification?.unreadMessageCount))
         }

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:package_info/package_info.dart';
 import 'package:flutter/services.dart';
 
 enum LogLevel { verbose, debug, info, warn, error }
@@ -26,14 +25,6 @@ class ApptentiveConfiguration {
     this.ratingInteractionThrottleLength = 604800000, // 1 week
     this.customAppStoreURL
   });
-
-  String getPluginVersion() {
-    String version = "";
-    PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
-      version = packageInfo.version;
-    });
-    return version;
-  }
 }
 
 enum PushProvider { apptentive, amazon, parse, urban_airship }
