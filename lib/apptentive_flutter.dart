@@ -180,6 +180,13 @@ class ApptentiveFlutter {
     return successful;
   }
 
+  static Future<bool> sendAttachmentText({required String message}) async {
+    final bool successful = await _channel.invokeMethod('sendAttachmentText', {
+      "message": message
+    });
+    return successful;
+  }
+
   // Pack the Apptentive Configuration into a map object <String, Any>
   static Map _packConfiguration(ApptentiveConfiguration configuration) {
     return {
