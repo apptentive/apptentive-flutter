@@ -2,24 +2,24 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io' show Platform;
-
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:apptentive_flutter/apptentive_flutter.dart';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_messaging/firebase_messaging.dart';
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("Apptentive: handling a background message");
-  print("Notification Data: ${message.data}");
-}
+// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+//   print("Apptentive: handling a background message");
+//   print("Notification Data: ${message.data}");
+// }
 
 String? integration_token = "";
 
 void main() async {
   if (Platform.isAndroid) {
     WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  //  await Firebase.initializeApp();
+  //  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
   runApp(MyApp());
 }
@@ -39,9 +39,9 @@ class _MyAppState extends State<MyApp> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     // Save the device token for our Firebase push integration on Android
-    if (Platform.isAndroid) {
-      integration_token = await FirebaseMessaging.instance.getToken();
-    }
+    // if (Platform.isAndroid) {
+    //   integration_token = await FirebaseMessaging.instance.getToken();
+    // }
 
     final String apptentiveKey;
     final String apptentiveSignature;
@@ -63,14 +63,18 @@ class _MyAppState extends State<MyApp> {
         logLevel: LogLevel.verbose,
         shouldEncryptStorage: false,
         shouldSanitizeLogMessages: false,
-        troubleshootingModeEnabled: true,
-        shouldCollectAndroidIdOnPreOreoTargets: true,
-        shouldShowInfoButton: true,
-        enableDebugLogFile: true,
-        gatherCarrierInfo: true
     );
     ApptentiveFlutter.surveyFinishedCallback = (bool completed) {
       print("Survey Finished?: $completed");
+      if (completed) {
+        Fluttertoast.showToast(
+            msg: "Survey completed",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.grey[600],
+            textColor: Colors.white,
+        );
+      }
     };
     ApptentiveFlutter.messageCenterUnreadCountChangedNotification = (int count) {
       print("Message Center unread message count is now: $count");
@@ -79,6 +83,15 @@ class _MyAppState extends State<MyApp> {
       print("Message sent by user: " + sentByUser);
     };
     bool successful = await ApptentiveFlutter.register(configuration);
+    if (successful) {
+      Fluttertoast.showToast(
+        msg: "Apptentive is registered",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.grey[600],
+        textColor: Colors.white,
+      );
+    }
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling

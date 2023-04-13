@@ -22,7 +22,7 @@ if (flutterVersionName == null) {
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
+//apply plugin: 'com.google.gms.google-services'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
@@ -49,6 +49,7 @@ android {
 
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
+//    implementation platform('com.google.firebase:firebase-bom:31.4.0')
 }
 
 flutter {
