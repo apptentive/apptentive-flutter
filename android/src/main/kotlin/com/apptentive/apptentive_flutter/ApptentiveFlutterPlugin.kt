@@ -294,8 +294,8 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   private fun sendAttachmentText(call: MethodCall, result: Result) {
     val message: String? = call.argument("message")
 
-    if (message == null) {
-      result.error(ERROR_CODE, "Unable to send the attachment text: The message body is null", null)
+    if (message == null || message.isEmpty()) {
+      result.error(ERROR_CODE, "Unable to send the attachment text: The message body is null or empty", null)
       return
     }
 
