@@ -294,8 +294,8 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   private fun sendAttachmentText(call: MethodCall, result: Result) {
     val message: String? = call.argument("message")
 
-    if (message == null) {
-      result.error(ERROR_CODE, "Unable to send the attachment text: The message body is null", null)
+    if (message == null || message.isEmpty()) {
+      result.error(ERROR_CODE, "Unable to send the attachment text: The message body is null or empty", null)
       return
     }
 
@@ -342,7 +342,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
             channel.invokeMethod("onSurveyFinished", mapOf("completed" to true))
           }
 
-        interaction == "Survey" && name != "submit" ->
+        interaction == "Survey" && name == "cancel" || name == "cancel_partial" ->
           activity?.runOnUiThread {
             channel.invokeMethod("onSurveyFinished", mapOf("completed" to false))
           }
