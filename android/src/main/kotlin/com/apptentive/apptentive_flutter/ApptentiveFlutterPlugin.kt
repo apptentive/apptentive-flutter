@@ -104,6 +104,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       "setPushNotificationIntegration" -> setPushNotificationIntegration(call, result)
       "getUnreadMessageCount" -> getUnreadMessageCount(result)
       "registerListeners" -> registerListeners(result)
+      "sendAttachmentText" -> sendAttachmentText(call, result)
       "handleRequestPushPermissions" -> { /* Only iOS. */ }
       else -> result.notImplemented()
     }
@@ -290,6 +291,22 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     }
   }
 
+  private fun sendAttachmentText(call: MethodCall, result: Result) {
+    val message: String? = call.argument("message")
+
+    if (message == null || message.isEmpty()) {
+      result.error(ERROR_CODE, "Unable to send the attachment text: The message body is null or empty", null)
+      return
+    }
+
+    try {
+      Apptentive.sendAttachmentText(message)
+      result.success(true)
+    } catch (e: Exception) {
+      result.error(ERROR_CODE, "Failed to send attachment text", e.toString())
+    }
+  }
+
   private fun getUnreadMessageCount(result: Result) {
     try {
       val unreadMessages: Int = Apptentive.getUnreadMessageCount()
@@ -325,7 +342,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
             channel.invokeMethod("onSurveyFinished", mapOf("completed" to true))
           }
 
-        interaction == "Survey" && name != "submit" ->
+        interaction == "Survey" && name == "cancel" || name == "cancel_partial" ->
           activity?.runOnUiThread {
             channel.invokeMethod("onSurveyFinished", mapOf("completed" to false))
           }
