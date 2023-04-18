@@ -1,3 +1,8 @@
+# 2022-04-18 - v6.1.0
+
+- Apptentive Android SDK: 6.0.4
+- Apptentive iOS SDK: 6.1.0
+
 # 2022-09-29 - v6.0.3
 
 - Apptentive Android SDK: 5.8.4

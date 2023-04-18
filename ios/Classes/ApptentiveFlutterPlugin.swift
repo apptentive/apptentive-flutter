@@ -34,6 +34,7 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     case "canShowInteraction": handleCanShowInteractionCall(call, result)
     case "setPushNotificationIntegration": handleSetPushNotificationIntegrationCall(call, result)
     case "registerListeners": handleRegisterListenersCall(call, result)
+    case "sendAttachmentText": handleSendAttachmentTextCall(call, result)
     default: result(FlutterMethodNotImplemented)
     }
   }
@@ -258,6 +259,15 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     }
 
     NotificationCenter.default.addObserver(self, selector: #selector(eventEngaged(notification:)), name: Notification.Name.apptentiveEventEngaged, object: nil)
+  }
+
+  private func handleSendAttachmentTextCall(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+      guard let callArguments = call.arguments as? [String: String], let message = callArguments["message"] else {
+        return result(FlutterError.init(code: Self.errorCode, message: "Expected String for hidden message body.", details: nil))
+      }
+
+      Apptentive.shared.sendAttachment(message)
+      result(true)
   }
 
   @objc func eventEngaged(notification: Notification) {

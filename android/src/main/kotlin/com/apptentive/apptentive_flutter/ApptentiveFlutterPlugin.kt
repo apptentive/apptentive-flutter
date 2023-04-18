@@ -2,14 +2,10 @@ package com.apptentive.apptentive_flutter
 
 // TODO test push notifications
 
-import android.app.Application
 import android.app.Activity
-import com.apptentive.android.sdk.Apptentive
-import com.apptentive.android.sdk.ApptentiveConfiguration
-import com.apptentive.android.sdk.ApptentiveLog
-import com.apptentive.android.sdk.module.engagement.interaction.model.TermsAndConditions
-import io.flutter.Log
-
+import android.app.Application
+import apptentive.com.android.feedback.*
+import apptentive.com.android.util.*
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -18,27 +14,30 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
+
+@OptIn(InternalUseOnly::class)
 class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   // The MethodChannel that will communicate between Flutter and native Android
   // This local reference serves to register the plugin with the Flutter Engine
   // and unregister it when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
-
-  // Current Application object
-  private var application: Application? = null
-
-  // Current Activity object
+  private lateinit var application: Application
   private var activity: Activity? = null
-
-  // Result error code
   private val ERROR_CODE: String = "Apptentive Error"
+  private var isApptentiveRegistered: Boolean = false
 
 
+  private val activityInfo = object : ApptentiveActivityInfo {
+    override fun getApptentiveActivityInfo(): Activity? {
+      if (activity == null) {
+        Log.e(LogTag("Flutter"), "Activity should not be null")
+      }
+      return activity
+    }
+  }
 
-////////// LIFECYCLE METHODS
-
-
+  //region lifecycle methods
 
   // When plugin is attached, set and connect method channel
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -48,23 +47,48 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   }
 
   // Set channel method handler to null when plugin is detached
-  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) { channel.setMethodCallHandler(null) }
+  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+    channel.setMethodCallHandler(null)
+  }
 
   // When plugin is attached to an Activity, register Apptentive Activity Callback
-  override fun onAttachedToActivity(binding: ActivityPluginBinding) { activity = binding.activity }
+  override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+    activity = binding.activity
+
+    if (isApptentiveRegistered) {
+      Apptentive.registerApptentiveActivityInfoCallback(activityInfo)
+    }
+  }
 
   // When re-attached to activity, set current activity context and re-register Apptentive Activity Callback
-  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) { activity = binding.activity }
+  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+    activity = binding.activity
+    Apptentive.registerApptentiveActivityInfoCallback(activityInfo)
+
+    Log.d(LogTag("Flutter"), "register ApptentiveActivityInfoCallback on onReattachedToActivityForConfigChanges")
+  }
 
   // When detached from activity, set current activity context to null
-  override fun onDetachedFromActivity() { activity = null }
+  override fun onDetachedFromActivity() {
+    activity = null
+    Apptentive.unregisterApptentiveActivityInfoCallback()
+
+    Log.d(LogTag("Flutter"), "unregister ApptentiveActivityInfoCallback onDetachedFromActivity")
+  }
 
   // When detached from activity, set current activity context to null
-  override fun onDetachedFromActivityForConfigChanges() { activity = null }
+  override fun onDetachedFromActivityForConfigChanges() {
+    activity = null
+    Apptentive.unregisterApptentiveActivityInfoCallback()
+
+    Log.d(LogTag("Flutter"), "unregister ApptentiveActivityInfoCallback onDetachedFromActivity")
+  }
 
   // Delegate the method call to the proper method
   override fun onMethodCall(call: MethodCall, result: Result) {
-    if (checkIfActivityIsNull(result)) { return }
+    if (checkIfActivityIsNull(result)) return
+    else Apptentive.registerApptentiveActivityInfoCallback(activityInfo)
+
     when (call.method) {
       "register" -> register(call, result)
       "engage" -> engage(call, result)
@@ -80,29 +104,31 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       "setPushNotificationIntegration" -> setPushNotificationIntegration(call, result)
       "getUnreadMessageCount" -> getUnreadMessageCount(result)
       "registerListeners" -> registerListeners(result)
+      "sendAttachmentText" -> sendAttachmentText(call, result)
       "handleRequestPushPermissions" -> { /* Only iOS. */ }
       else -> result.notImplemented()
     }
   }
+// endregion
 
+// region Apptentive plugin methods
 
-
-  ////////// APPTENTIVE PLUGIN METHODS
-
-
-
-  // Register the Apptentive SDK by creating an Apptentive Configuration
   private fun register(call: MethodCall, result: Result) {
     val configuration = unpackConfiguration(call.argument("configuration")!!)
     try {
-      Apptentive.register(application!!, configuration)
-      result.success(true)
+      Apptentive.register(application, configuration) { registerResult ->
+        if (registerResult is RegisterResult.Success) {
+          isApptentiveRegistered = true
+          Log.d(LogTag("Flutter"), "register ApptentiveActivityInfoCallback")
+          Apptentive.registerApptentiveActivityInfoCallback(activityInfo)
+        }
+        result.success(registerResult is RegisterResult.Success)
+      }
     } catch (e: Exception) {
       result.error(ERROR_CODE, "Failed to register Apptentive instance.", e.toString())
     }
   }
 
-  // Engage a Where Event, launching valid interactions
   private fun engage(call: MethodCall, result: Result) {
     val event: String? = call.argument("event_name")
     if (event == null) {
@@ -110,7 +136,10 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       return
     }
     try {
-      Apptentive.engage(activity, event) { result.success(it) }
+      Apptentive.engage(event) { engagementResult ->
+        if (engagementResult is EngagementResult.InteractionShown) result.success(true)
+        else result.success(false)
+      }
     } catch (e: Exception) {
       result.error(ERROR_CODE, "Failed to engage event $event.", e.toString())
     }
@@ -119,7 +148,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   // Show Message Center
   private fun showMessageCenter(result: Result) {
     try {
-      Apptentive.showMessageCenter(activity) { result.success(it) }
+      Apptentive.showMessageCenter { result.success(it is EngagementResult.InteractionShown) }
     } catch(e: Exception) {
       result.error(ERROR_CODE, "Failed to present Message Center.", e.toString())
     }
@@ -128,13 +157,12 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   // Check if Message Center can be shown
   private fun canShowMessageCenter(result: Result) {
     try {
-      Apptentive.canShowMessageCenter() { result.success(it) }
+      Apptentive.canShowMessageCenter { result.success(it) }
     } catch(e: Exception) {
       result.error(ERROR_CODE, "Failed to check if Apptentive can launch Message Center.", e.toString())
     }
   }
 
-  // Check if an interaction can be shown with the event name
   private fun canShowInteraction(call: MethodCall, result: Result) {
     val event: String? = call.argument("event_name")
     if (event == null) {
@@ -142,13 +170,13 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       return
     }
     try {
-      Apptentive.queryCanShowInteraction(event) { result.success(it) }
+      val canShowInteraction = Apptentive.canShowInteraction(event)
+      result.success(canShowInteraction)
     } catch (e: Exception) {
       result.error(ERROR_CODE, "Failed to check if Apptentive interaction can be show on event $event.", e.toString())
     }
   }
 
-  // Set person name
   private fun setPersonName(call: MethodCall, result: Result) {
     val name: String? = call.argument("name")
     if (name == null) {
@@ -163,7 +191,6 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     }
   }
 
-  // Set person email
   private fun setPersonEmail(call: MethodCall, result: Result) {
     val email: String? = call.argument("email")
     if (email == null) {
@@ -178,9 +205,6 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     }
   }
 
-  // Add custom person data with key/value pair
-  // Key: String
-  // Value: String, Number, or Boolean
   private fun addCustomPersonData(call: MethodCall, result: Result) {
     val key: String? = call.argument("key")
     if (key == null) {
@@ -200,7 +224,6 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     result.success(true)
   }
 
-  // Remove custom person data based on String key
   private fun removeCustomPersonData(call: MethodCall, result: Result) {
     val key: String? = call.argument("key")
     if (key == null) {
@@ -215,9 +238,6 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     }
   }
 
-  // Add custom device data with key/value pair
-  // Key: String
-  // Value: String, Number, or Boolean
   private fun addCustomDeviceData(call: MethodCall, result: Result) {
     val key: String? = call.argument("key")
     if (key == null) {
@@ -237,7 +257,6 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     result.success(true)
   }
 
-  // Remove custom device data based on String key
   private fun removeCustomDeviceData(call: MethodCall, result: Result) {
     val key: String? = call.argument("key")
     if (key == null) {
@@ -252,7 +271,6 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     }
   }
 
-  // Set the push notification integration using a push provider string and token
   private fun setPushNotificationIntegration(call: MethodCall, result: Result) {
     val pushProviderCode: String? = call.argument("push_provider")
     val token: String? = call.argument("token")
@@ -266,14 +284,29 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     }
     val pushProvider: Int = parsePushProvider(pushProviderCode)
     try {
-      Apptentive.setPushNotificationIntegration(pushProvider, token)
+      Apptentive.setPushNotificationIntegration(application, pushProvider, token)
       result.success(true)
     } catch (e: Exception) {
       result.error(ERROR_CODE, "Failed to set Apptentive push provider.", e.toString())
     }
   }
 
-  // Return the number of unread messages in Message Center
+  private fun sendAttachmentText(call: MethodCall, result: Result) {
+    val message: String? = call.argument("message")
+
+    if (message == null || message.isEmpty()) {
+      result.error(ERROR_CODE, "Unable to send the attachment text: The message body is null or empty", null)
+      return
+    }
+
+    try {
+      Apptentive.sendAttachmentText(message)
+      result.success(true)
+    } catch (e: Exception) {
+      result.error(ERROR_CODE, "Failed to send attachment text", e.toString())
+    }
+  }
+
   private fun getUnreadMessageCount(result: Result) {
     try {
       val unreadMessages: Int = Apptentive.getUnreadMessageCount()
@@ -286,91 +319,120 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   // Register listeners for native callbacks:
   private fun registerListeners(result: Result) {
     try {
-      Apptentive.setOnSurveyFinishedListener { channel.invokeMethod("onSurveyFinished", mapOf("completed" to it)) }
-      Apptentive.addUnreadMessagesListener { channel.invokeMethod("onUnreadMessageCountChanged", mapOf("count" to it)) }
+      registerForSurveyListener()
+      registerForUnreadMessageListener()
       result.success(true)
     } catch(e: Exception) {
       result.error(ERROR_CODE, "Failed to register Apptentive listeners.", e.toString())
     }
   }
 
+  private fun registerForSurveyListener() {
+    Apptentive.eventNotificationObservable.observe { notification ->
+      val name = notification?.name
+      val interaction = notification?.interaction
+      val vendor = notification?.vendor
+      val interactionId = notification?.interactionId
+      val notificationText = "Name: \"$name\". Vendor: \"$vendor\". " +
+              "Interaction: \"$interaction\". Interaction ID: $interactionId"
+      Log.d(LogTags.EVENT_NOTIFICATION, notificationText)
+      when {
+        interaction == "Survey" && name == "submit" ->
+          activity?.runOnUiThread {
+            channel.invokeMethod("onSurveyFinished", mapOf("completed" to true))
+          }
 
+        interaction == "Survey" && name == "cancel" || name == "cancel_partial" ->
+          activity?.runOnUiThread {
+            channel.invokeMethod("onSurveyFinished", mapOf("completed" to false))
+          }
+      }
+    }
+  }
 
-  ////////// UTIL METHODS
+  private fun registerForUnreadMessageListener() {
+    Apptentive.messageCenterNotificationObservable.observe { notification ->
+      val notificationText =
+        "Can Show Message Center: ${notification?.canShowMessageCenter}. " +
+                "Unread Message Count: ${notification?.unreadMessageCount}. " +
+                "Person Name: ${notification?.personName}. " +
+                "Person Email: ${notification?.personEmail}"
 
+      Log.d(LogTags.MESSAGE_CENTER_NOTIFICATION, notificationText)
+      if (notification?.unreadMessageCount != 0) {
+        activity?.runOnUiThread {
+          channel.invokeMethod("onUnreadMessageCountChanged", mapOf("count" to notification?.unreadMessageCount))
+        }
+      }
+    }
+  }
 
+  // endregion
 
-  // Parse log level string into Apptentive LogLevel
-  // Return ApptentiveLog.Level.INFO by default
-  private fun parseLogLevel(logLevelStr: String): ApptentiveLog.Level {
-    if (logLevelStr.contains("verbose")) return ApptentiveLog.Level.VERBOSE
-    if (logLevelStr.contains("debug")) return ApptentiveLog.Level.DEBUG
-    if (logLevelStr.contains("info")) return ApptentiveLog.Level.INFO
-    if (logLevelStr.contains("warn")) return ApptentiveLog.Level.WARN
-    if (logLevelStr.contains("error")) return ApptentiveLog.Level.ERROR
-    Log.e("Apptentive Flutter", "Unknown log level: $logLevelStr. Log level is set to .INFO by default")
-    return ApptentiveLog.Level.INFO
+  // region Utils
+
+  private fun parseLogLevel(logLevelStr: String): LogLevel {
+    return when {
+        logLevelStr.contains("verbose") -> LogLevel.Verbose
+        logLevelStr.contains("debug") -> LogLevel.Debug
+        logLevelStr.contains("info") -> LogLevel.Info
+        logLevelStr.contains("warn") -> LogLevel.Warning
+        logLevelStr.contains("error") -> LogLevel.Error
+        else -> {
+          Log.w(LogTag("Flutter LogLevel"),
+            "Unknown log level: $logLevelStr. Log level is set to .INFO by default")
+          LogLevel.Info
+        }
+    }
   }
 
   // Turn a Map into an Apptentive Configuration
-  // Suppress unchecked cast from Any? to Map<String,String>?, since we know it will be that type
   @Suppress("UNCHECKED_CAST")
   private fun unpackConfiguration(configurationMap: Map<String, Any>): ApptentiveConfiguration {
-    // Key/Sig
     val key = configurationMap["key"] as String
     val signature = configurationMap["signature"] as String
-    // Optional parameters
     val logLevel = parseLogLevel(configurationMap["log_level"] as String)
+    val shouldInheritAppTheme = configurationMap["should_inherit_theme"] as Boolean
     val shouldEncryptStorage = configurationMap["should_encrypt_storage"] as Boolean
     val shouldSanitizeLogMessages = configurationMap["should_sanitize_log_messages"] as Boolean
-    val troubleshootingModeEnabled = configurationMap["troubleshooting_mode_enabled"] as Boolean
-    // val shouldCollectAndroidIdOnPreOreoTargets = configurationMap["should_collect_android_id_on_pre_oreo_targets"] as Boolean
-    val surveyTermsAndConditions: TermsAndConditions? = unpackTermsAndConditions(configurationMap["terms_and_conditions"] as Map<String, String>?)
+    val ratingInteractionThrottleLength = (configurationMap["rating_interaction_throttle_length"] as Int).toLong()
+    val customAppStoreURL = configurationMap["custom_app_store_url"] as String?
+    val distributionName = configurationMap["distribution_name"] as String
+    val distributionVersion = configurationMap["distribution_version"] as String
 
-    // Create ApptentiveConfiguration object
     val configuration = ApptentiveConfiguration(key,signature)
 
-    // Set optional parameters
     configuration.logLevel = logLevel
-    configuration.setShouldEncryptStorage(shouldEncryptStorage)
-    configuration.setShouldSanitizeLogMessages(shouldSanitizeLogMessages)
-    configuration.isTroubleshootingModeEnabled = troubleshootingModeEnabled
+    configuration.shouldInheritAppTheme = shouldInheritAppTheme
+    configuration.shouldEncryptStorage = shouldEncryptStorage
+    configuration.shouldSanitizeLogMessages = shouldSanitizeLogMessages
+    configuration.ratingInteractionThrottleLength = ratingInteractionThrottleLength
+    configuration.customAppStoreURL = customAppStoreURL
+    configuration.distributionName = distributionName
+    configuration.distributionVersion = distributionVersion
 
-    // Only add terms and conditions if they were created
-    if (surveyTermsAndConditions != null) {
-      configuration.surveyTermsAndConditions = surveyTermsAndConditions
-    }
-
-    // Return created configuration
     return configuration
   }
 
-  // If activity is null, place an error into result and return true
-  // Otherwise put nothing in result, return false
   private fun checkIfActivityIsNull(result: Result): Boolean {
     if (activity != null) return false
     result.error(ERROR_CODE, "Unable to call Apptentive, plugin is not bound to an Activity.", null)
     return true
   }
 
-  // Parse push provider, throw IllegalArgumentException if invalid pushProvider String
   // Values based on PushProvider enum in '../lib/apptentive_flutter.dart'
   private fun parsePushProvider(pushProvider: String): Int {
-    if (pushProvider.contains("apptentive")) { return Apptentive.PUSH_PROVIDER_APPTENTIVE }
-    if (pushProvider.contains("amazon")) { return Apptentive.PUSH_PROVIDER_AMAZON_AWS_SNS }
-    if (pushProvider.contains("parse")) { return Apptentive.PUSH_PROVIDER_PARSE }
-    if (pushProvider.contains("urban_airship")) { return Apptentive.PUSH_PROVIDER_URBAN_AIRSHIP }
-    throw IllegalArgumentException("Unknown push provider: $pushProvider")
+    when {
+        pushProvider.contains("apptentive") -> { return Apptentive.PUSH_PROVIDER_APPTENTIVE }
+        pushProvider.contains("amazon") -> { return Apptentive.PUSH_PROVIDER_AMAZON_AWS_SNS }
+        pushProvider.contains("parse") -> { return Apptentive.PUSH_PROVIDER_PARSE }
+        pushProvider.contains("urban_airship") -> { return Apptentive.PUSH_PROVIDER_URBAN_AIRSHIP }
+        else -> throw IllegalArgumentException("Unknown push provider: $pushProvider")
+    }
   }
-
-  // Unpack terms and conditions map and return a TermsAndConditions object built with it
-  // Return null if no terms and conditions map provided
-  private fun unpackTermsAndConditions(termsAndConditions: Map<String, String>?): TermsAndConditions? {
-    if (termsAndConditions == null || termsAndConditions.isEmpty()) { return null }
-    val bodyText: String = termsAndConditions["body_text"] as String
-    val linkText: String = termsAndConditions["link_text"] as String
-    val linkURL: String = termsAndConditions["link_url"] as String
-    return TermsAndConditions(bodyText, linkText, linkURL)
-  }
-
+  // endregion
 }
+
+
+
+
