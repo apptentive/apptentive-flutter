@@ -71,7 +71,7 @@ class ApptentiveFlutter {
     final bool registered = await _channel.invokeMethod('register', {
       "configuration" : _packConfiguration(configuration),
       "distributionName" : "Flutter",
-      "distributionVersion" : "6.1.0",
+      "distributionVersion" : "6.1.1",
     });
     return registered;
   }
