@@ -153,7 +153,12 @@ class _MyAppState extends State<MyApp> {
                           },
                           child: Text('Register Listeners'),
                         ),
-
+                        OutlinedButton(
+                          onPressed: () {
+                            ApptentiveFlutter.unregisterListeners();
+                          },
+                          child: Text('Unregister Listeners'),
+                        ),
                         OutlinedButton(
                           onPressed: () {
                             if (integration_token != null) {
