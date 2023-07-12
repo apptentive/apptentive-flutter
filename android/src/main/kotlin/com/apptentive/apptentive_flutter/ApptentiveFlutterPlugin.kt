@@ -5,6 +5,8 @@ package com.apptentive.apptentive_flutter
 import android.app.Activity
 import android.app.Application
 import apptentive.com.android.feedback.*
+import apptentive.com.android.feedback.model.EventNotification
+import apptentive.com.android.feedback.model.MessageCenterNotification
 import apptentive.com.android.util.*
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -104,6 +106,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       "setPushNotificationIntegration" -> setPushNotificationIntegration(call, result)
       "getUnreadMessageCount" -> getUnreadMessageCount(result)
       "registerListeners" -> registerListeners(result)
+      "unregisterListeners" -> unregisterListeners(result)
       "sendAttachmentText" -> sendAttachmentText(call, result)
       "handleRequestPushPermissions" -> { /* Only iOS. */ }
       else -> result.notImplemented()
@@ -319,50 +322,56 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   // Register listeners for native callbacks:
   private fun registerListeners(result: Result) {
     try {
-      registerForSurveyListener()
-      registerForUnreadMessageListener()
+      Apptentive.eventNotificationObservable.observe(::surveyFinishedObserver)
+      Apptentive.messageCenterNotificationObservable.observe(::messageObserver)
       result.success(true)
     } catch(e: Exception) {
       result.error(ERROR_CODE, "Failed to register Apptentive listeners.", e.toString())
     }
   }
 
-  private fun registerForSurveyListener() {
-    Apptentive.eventNotificationObservable.observe { notification ->
-      val name = notification?.name
-      val interaction = notification?.interaction
-      val vendor = notification?.vendor
-      val interactionId = notification?.interactionId
-      val notificationText = "Name: \"$name\". Vendor: \"$vendor\". " +
-              "Interaction: \"$interaction\". Interaction ID: $interactionId"
-      Log.d(LogTags.EVENT_NOTIFICATION, notificationText)
-      when {
-        interaction == "Survey" && name == "submit" ->
-          activity?.runOnUiThread {
-            channel.invokeMethod("onSurveyFinished", mapOf("completed" to true))
-          }
-
-        interaction == "Survey" && name == "cancel" || name == "cancel_partial" ->
-          activity?.runOnUiThread {
-            channel.invokeMethod("onSurveyFinished", mapOf("completed" to false))
-          }
-      }
+  private fun unregisterListeners(result: Result) {
+    try {
+      Apptentive.eventNotificationObservable.removeObserver(::surveyFinishedObserver)
+      Apptentive.messageCenterNotificationObservable.removeObserver(::messageObserver)
+      result.success(true)
+    } catch(e: Exception) {
+      result.error(ERROR_CODE, "Failed to unregister Apptentive listeners.", e.toString())
     }
   }
 
-  private fun registerForUnreadMessageListener() {
-    Apptentive.messageCenterNotificationObservable.observe { notification ->
-      val notificationText =
-        "Can Show Message Center: ${notification?.canShowMessageCenter}. " +
-                "Unread Message Count: ${notification?.unreadMessageCount}. " +
-                "Person Name: ${notification?.personName}. " +
-                "Person Email: ${notification?.personEmail}"
-
-      Log.d(LogTags.MESSAGE_CENTER_NOTIFICATION, notificationText)
-      if (notification?.unreadMessageCount != 0) {
+  private fun surveyFinishedObserver(notification: EventNotification?) {
+    val name = notification?.name
+    val interaction = notification?.interaction
+    val vendor = notification?.vendor
+    val interactionId = notification?.interactionId
+    val notificationText = "Name: \"$name\". Vendor: \"$vendor\". " +
+            "Interaction: \"$interaction\". Interaction ID: $interactionId"
+    Log.d(LogTags.EVENT_NOTIFICATION, notificationText)
+    when {
+      interaction == "Survey" && name == "submit" ->
         activity?.runOnUiThread {
-          channel.invokeMethod("onUnreadMessageCountChanged", mapOf("count" to notification?.unreadMessageCount))
+          channel.invokeMethod("onSurveyFinished", mapOf("completed" to true))
         }
+
+      interaction == "Survey" && name == "cancel" || name == "cancel_partial" ->
+        activity?.runOnUiThread {
+          channel.invokeMethod("onSurveyFinished", mapOf("completed" to false))
+        }
+    }
+  }
+
+  private fun messageObserver(notification: MessageCenterNotification?) {
+    val notificationText =
+      "Can Show Message Center: ${notification?.canShowMessageCenter}. " +
+              "Unread Message Count: ${notification?.unreadMessageCount}. " +
+              "Person Name: ${notification?.personName}. " +
+              "Person Email: ${notification?.personEmail}"
+
+    Log.d(LogTags.MESSAGE_CENTER_NOTIFICATION, notificationText)
+    if (notification?.unreadMessageCount != 0) {
+      activity?.runOnUiThread {
+        channel.invokeMethod("onUnreadMessageCountChanged", mapOf("count" to notification?.unreadMessageCount))
       }
     }
   }

@@ -180,6 +180,12 @@ class ApptentiveFlutter {
     return successful;
   }
 
+  // Unregister callback listeners
+  static Future<bool> unregisterListeners() async {
+    final bool successful = await _channel.invokeMethod('unregisterListeners', {});
+    return successful;
+  }
+
   static Future<bool> sendAttachmentText({required String message}) async {
     final bool successful = await _channel.invokeMethod('sendAttachmentText', {
       "message": message
