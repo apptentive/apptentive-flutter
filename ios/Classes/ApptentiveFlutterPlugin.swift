@@ -81,32 +81,35 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
 
   // Register the Apptentive iOS SDK
   private func handleRegisterCall(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-    do {
-      let configuration = try self.unpackConfiguration(call.arguments)
+    guard let callArguments = call.arguments as? [String: Any] else {
+      return result(FlutterError.init(code: Self.errorCode, message: "Expected array of strings for arguments.", details: nil))
+    }
 
-      Apptentive.shared.distributionName = configuration.distributionName
-      Apptentive.shared.distributionVersion = configuration.distributionVersion
+    // Get and set distribution information
+    guard let distributionName = callArguments["distributionName"] as? String,
+          let distributionVersion = callArguments["distributionVersion"] as? String
+    else {
+      return result(FlutterError.init(code: Self.errorCode, message: "Internal Apptentive Error: Missing distribution information", details: nil))
+    }
 
-      ApptentiveLogger.logLevel = configuration.logLevel
-      ApptentiveLogger.shouldHideSensitiveLogs = configuration.shouldSanitizeLogMessages
+    Apptentive.shared.distributionName = distributionName
+    Apptentive.shared.distributionVersion = distributionVersion
 
-      // Register Apptentive using credentials
-      Apptentive.shared.register(with: configuration.appCredentials, completion: { (completionResult) -> Void in
+    guard let (logLevel, appCredentials) = self.unpackConfiguration(callArguments["configuration"]) else {
+      return result(FlutterError.init(code: Self.errorCode, message: "Missing or invalid app credentials (key/signature)", details: "Configuration is \(callArguments["configuration"] ?? "missing")"))
+    }
+
+    ApptentiveLogger.logLevel = logLevel
+
+    // Register Apptentive using credentials
+    Apptentive.shared.register(with: appCredentials, completion: { (completionResult) -> Void in
         switch completionResult {
         case .success:
-          result(true)
-
+            result(true)
         case .failure(let error):
           result(FlutterError.init(code: Self.errorCode, message: "Apptentive SDK failed to register.", details: error.localizedDescription))
         }
-      })
-    } catch let error as ApptentiveFlutterError where error == .internalInconsistency {
-      return result(FlutterError.init(code: Self.errorCode, message: "Internal Apptentive Error: Missing configuration information", details: "Arguments are \(call.arguments ?? "missing")"))
-    } catch let error as ApptentiveFlutterError where error == .missingKeyOrSignature {
-      return result(FlutterError.init(code: Self.errorCode, message: "Missing or invalid app credentials (key/signature)", details: "Arguments are \(call.arguments ?? "missing")"))
-    } catch let error {
-      return result(FlutterError.init(code: Self.errorCode, message: "Unknown error when unpacking configuration: \(error.localizedDescription)", details: "Arguments are \(call.arguments ?? "missing")"))
-    }
+    })
   }
 
   // Engage an Apptentive event with even_name, launching any valid interactions tied to the event
@@ -314,25 +317,17 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     }
   }
 
-  private func unpackConfiguration(_ callArguments: Any?) throws -> Configuration {
-    guard let arguments = callArguments as? [String: Any],
-          let configuration = arguments["configuration"] as? [String: Any],
-          let distributionName = configuration["distribution_name"] as? String,
-          let distributionVersion = configuration["distribution_version"] as? String
-    else {
-      throw ApptentiveFlutterError.internalInconsistency
-    }
-
-    guard let key = configuration["key"] as? String,
+  private func unpackConfiguration(_ configuration: Any?) -> (LogLevel, Apptentive.AppCredentials)? {
+    guard let configuration = configuration as? [String: Any],
+          let key = configuration["key"] as? String,
           let signature = configuration["signature"] as? String
     else {
-      throw ApptentiveFlutterError.missingKeyOrSignature
+      print("Missing App Credentials (key/signature) in configuration!")
+      return nil
     }
 
-    let logLevel = self.convertLogLevel(logLevel: configuration["log_level"] as? String)
-    let shouldSanitizeLogMessages = configuration["should_sanitize_log_messages"] as? Bool ?? true
-
-    return .init(appCredentials: .init(key: key, signature: signature), distributionName: distributionName, distributionVersion: distributionVersion, logLevel: logLevel, shouldSanitizeLogMessages: shouldSanitizeLogMessages)
+    let logLevel = configuration["log_level"] as? String
+    return (self.convertLogLevel(logLevel: logLevel), .init(key: key, signature: signature))
   }
 
   private func convertCustomDataArguments(_ callArguments: Any?) -> (String, CustomDataCompatible)? {
@@ -356,18 +351,5 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     default:
       return nil
     }
-  }
-
-  struct Configuration {
-    let appCredentials: Apptentive.AppCredentials
-    let distributionName: String
-    let distributionVersion: String
-    let logLevel: LogLevel
-    let shouldSanitizeLogMessages: Bool
-  }
-
-  enum ApptentiveFlutterError: Swift.Error {
-    case internalInconsistency
-    case missingKeyOrSignature
   }
 }
