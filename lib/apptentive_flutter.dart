@@ -191,6 +191,11 @@ class ApptentiveFlutter {
     return successful;
   }
 
+  static Future<bool> isSDKRegistered() async {
+    final bool registered = await _channel.invokeMethod('isSDKRegistered', {});
+    return registered;
+  }
+
   // Pack the Apptentive Configuration into a map object <String, Any>
   static Map _packConfiguration(ApptentiveConfiguration configuration) {
     return {
