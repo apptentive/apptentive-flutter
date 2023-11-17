@@ -1,0 +1,2 @@
+- Apptentive Android SDK: 6.5.0
+- Apptentive iOS SDK: 6.5.0
