@@ -108,6 +108,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       "registerListeners" -> registerListeners(result)
       "unregisterListeners" -> unregisterListeners(result)
       "sendAttachmentText" -> sendAttachmentText(call, result)
+      "isSDKRegistered" -> isSDKRegistered(result)
       "handleRequestPushPermissions" -> { /* Only iOS. */ }
       else -> result.notImplemented()
     }
@@ -119,13 +120,17 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
   private fun register(call: MethodCall, result: Result) {
     val configuration = unpackConfiguration(call.argument("configuration")!!)
     try {
-      Apptentive.register(application, configuration) { registerResult ->
-        if (registerResult is RegisterResult.Success) {
-          isApptentiveRegistered = true
-          Log.d(LogTag("Flutter"), "register ApptentiveActivityInfoCallback")
-          Apptentive.registerApptentiveActivityInfoCallback(activityInfo)
+      if (Apptentive.isRegistered()) {
+        result.error(ERROR_CODE, "Apptentive instance is already registered.", null)
+      } else {
+        Apptentive.register(application, configuration) { registerResult ->
+          if (registerResult is RegisterResult.Success) {
+            isApptentiveRegistered = true
+            Log.d(LogTag("Flutter"), "register ApptentiveActivityInfoCallback")
+            Apptentive.registerApptentiveActivityInfoCallback(activityInfo)
+          }
+          result.success(registerResult is RegisterResult.Success)
         }
-        result.success(registerResult is RegisterResult.Success)
       }
     } catch (e: Exception) {
       result.error(ERROR_CODE, "Failed to register Apptentive instance.", e.toString())
@@ -307,6 +312,14 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       result.success(true)
     } catch (e: Exception) {
       result.error(ERROR_CODE, "Failed to send attachment text", e.toString())
+    }
+  }
+
+  private fun isSDKRegistered(result: Result) {
+    try {
+      result.success(Apptentive.isRegistered())
+    } catch (e: Exception) {
+      result.error(ERROR_CODE, "Failed to check if Apptentive SDK is registered.", e.toString())
     }
   }
 
