@@ -21,7 +21,7 @@ class ApptentiveConfiguration {
     this.shouldEncryptStorage = false,
     this.shouldSanitizeLogMessages = true,
     this.distributionName = "Flutter",
-    this.distributionVersion = "6.1.2",
+    this.distributionVersion = "6.2.2",
     this.ratingInteractionThrottleLength = 604800000, // 1 week
     this.customAppStoreURL
   });
@@ -69,7 +69,9 @@ class ApptentiveFlutter {
   // Register the Apptentive SDK with the Apptentive Configuration
   static Future<bool> register(ApptentiveConfiguration configuration) async {
     final bool registered = await _channel.invokeMethod('register', {
-      "configuration" : _packConfiguration(configuration)
+      "configuration" : _packConfiguration(configuration),
+      "distributionName" : "Flutter",
+      "distributionVersion" : "6.1.2",
     });
     return registered;
   }
@@ -189,6 +191,11 @@ class ApptentiveFlutter {
       "message": message
     });
     return successful;
+  }
+
+  static Future<bool> isSDKRegistered() async {
+    final bool registered = await _channel.invokeMethod('isSDKRegistered', {});
+    return registered;
   }
 
   // Pack the Apptentive Configuration into a map object <String, Any>

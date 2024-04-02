@@ -1,3 +1,12 @@
+# 2023-11-17 - v6.2.2
+
+- Apptentive Android SDK: 6.5.0
+- Apptentive iOS SDK: 6.5.0
+
+#### Bugs Fixed:
+
+- Fixed an issue where calling register multiple times would hang on Android builds
+
 # 2023-08-02 - v6.1.2
 
 - Apptentive Android SDK: 6.1.0
