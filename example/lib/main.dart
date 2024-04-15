@@ -46,8 +46,8 @@ class _MyAppState extends State<MyApp> {
     final String apptentiveKey;
     final String apptentiveSignature;
     if (Platform.isAndroid) {
-      apptentiveKey = "ANDROID-FOXFAX-d2c49794fc25";
-      apptentiveSignature = "95943475cd8e40422d8574346ada1810";
+      apptentiveKey = "<YOUR_ANDROID_KEY>";
+      apptentiveSignature = "<YOUR_ANDROID_SIGNATURE>";
     } else if (Platform.isIOS) {
       apptentiveKey = "<YOUR_IOS_KEY>";
       apptentiveSignature = "<YOUR_IOS_SIGNATURE>";
