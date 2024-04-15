@@ -39,6 +39,15 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     }
   }
 
+  private val authenticationFailedListener = object : AuthenticationFailedListener {
+    override fun onAuthenticationFailed(reason: AuthenticationFailedReason) {
+      Log.e(LogTag("Flutter"), "Authentication failed: $reason")
+      activity?.runOnUiThread {
+        channel.invokeMethod("onAuthenticationFailed", mapOf("errorMessage" to reason.toString()))
+      }
+    }
+  }
+
   //region lifecycle methods
 
   // When plugin is attached, set and connect method channel
@@ -110,6 +119,10 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
       "sendAttachmentText" -> sendAttachmentText(call, result)
       "isSDKRegistered" -> isSDKRegistered(result)
       "handleRequestPushPermissions" -> { /* Only iOS. */ }
+      "login" -> login(call, result)
+      "setAuthenticationFailedListener" -> setAuthenticationFailedListener(result)
+      "updateToken" -> updateToken(call, result)
+      "logout" -> logout(result)
       else -> result.notImplemented()
     }
   }
@@ -371,6 +384,59 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
         activity?.runOnUiThread {
           channel.invokeMethod("onSurveyFinished", mapOf("completed" to false))
         }
+    }
+  }
+
+  private fun login(call: MethodCall, result: Result) {
+    val token: String? = call.argument("token")
+    if (token == null) {
+      result.error(ERROR_CODE, "Failed to login: Token is null.", null)
+      return
+    }
+    try {
+      Apptentive.login(token) { loginResult ->
+        when (loginResult) {
+          is LoginResult.Success -> result.success(true)
+          else -> result.error(ERROR_CODE, "Failed to login", null)
+        }
+      }
+    } catch (e: Exception) {
+      result.error(ERROR_CODE, "Failed to login.", e.toString())
+    }
+  }
+
+  private fun setAuthenticationFailedListener(result: Result) {
+    try {
+      Apptentive.setAuthenticationFailedListener(authenticationFailedListener)
+    } catch (e: Exception) {
+      result.error(ERROR_CODE, "Failed to set authentication failed listener.", e.toString())
+    }
+  }
+
+  private fun updateToken(call: MethodCall, result: Result) {
+    val token: String? = call.argument("token")
+    if (token == null) {
+      result.error(ERROR_CODE, "Failed to update token: Token is null.", null)
+      return
+    }
+    try {
+      Apptentive.updateToken(token) { loginResult ->
+        when (loginResult) {
+          is LoginResult.Success -> result.success(true)
+          else -> result.error(ERROR_CODE, "Failed to update token", null)
+        }
+      }
+    } catch (e: Exception) {
+      result.error(ERROR_CODE, "Failed to update token.", e.toString())
+    }
+  }
+
+  private fun logout(result: Result) {
+    try {
+      Apptentive.logout()
+      result.success(true)
+    } catch (e: Exception) {
+      result.error(ERROR_CODE, "Failed to logout.", e.toString())
     }
   }
 
