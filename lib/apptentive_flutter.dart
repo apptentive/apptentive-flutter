@@ -33,6 +33,7 @@ enum PushProvider { apptentive, amazon, parse, urban_airship }
 typedef SurveyFinishedCallback = void Function(bool completed);
 typedef MessageCenterUnreadCountChangedNotification = void Function(int count);
 typedef MessageSentNotification = void Function(String sentByUser);
+typedef AuthenticationFailedNotification = void Function(String errorMessage);
 
 // Plugin class
 class ApptentiveFlutter {
@@ -43,6 +44,7 @@ class ApptentiveFlutter {
   static SurveyFinishedCallback? surveyFinishedCallback;
   static MessageCenterUnreadCountChangedNotification? messageCenterUnreadCountChangedNotification;
   static MessageSentNotification? messageSentNotification;
+  static AuthenticationFailedNotification? authenticationFailedNotification;
 
   // Handle callbacks from Native
   static Future<dynamic> _nativeCallback(MethodCall methodCall) async {
@@ -59,6 +61,10 @@ class ApptentiveFlutter {
         await _channel.invokeMethod('requestPushPermissions', {});
         String sentByUser = methodCall.arguments["sentByUser"];
         messageSentNotification?.call(sentByUser);
+        break;
+      case 'onAuthenticationFailed':
+        String errorMessage = methodCall.arguments["errorMessage"];
+        authenticationFailedNotification?.call(errorMessage);
         break;
       default:
         throw MissingPluginException('notImplemented');
@@ -196,6 +202,30 @@ class ApptentiveFlutter {
   static Future<bool> isSDKRegistered() async {
     final bool registered = await _channel.invokeMethod('isSDKRegistered', {});
     return registered;
+  }
+
+  static Future<bool> login({required String token}) async {
+    final bool successful = await _channel.invokeMethod('login', {
+      "token": token
+    });
+    return successful;
+  }
+
+  static Future<bool> logout() async {
+    final bool successful = await _channel.invokeMethod('logout', {});
+    return successful;
+  }
+
+  static Future<bool> updateToken({required String token}) async {
+    final bool successful = await _channel.invokeMethod('updateToken', {
+      "token": token
+    });
+    return successful;
+  }
+
+  static Future<bool> setAuthenticationFailedListener() async {
+    final bool successful = await _channel.invokeMethod('setAuthenticationFailedListener', {});
+    return successful;
   }
 
   // Pack the Apptentive Configuration into a map object <String, Any>
