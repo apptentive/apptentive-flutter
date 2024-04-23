@@ -143,7 +143,7 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
 
   // Get the number of unread messages in Message Center
   private func handleGetUnreadMessageCount(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-    // TODO
+    result(Apptentive.shared.unreadMessageCount)
   }
 
   // Set person name
