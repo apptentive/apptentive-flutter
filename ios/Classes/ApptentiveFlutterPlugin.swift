@@ -35,6 +35,8 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     case "setPushNotificationIntegration": handleSetPushNotificationIntegrationCall(call, result)
     case "registerListeners": handleRegisterListenersCall(call, result)
     case "sendAttachmentText": handleSendAttachmentTextCall(call, result)
+    case "login": handleLoginCall(call, result)
+    case "logout": handleLogoutCall(result)
     default: result(FlutterMethodNotImplemented)
     }
   }
@@ -141,7 +143,7 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
 
   // Get the number of unread messages in Message Center
   private func handleGetUnreadMessageCount(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-    // TODO
+    result(Apptentive.shared.unreadMessageCount)
   }
 
   // Set person name
@@ -269,6 +271,28 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
       Apptentive.shared.sendAttachment(message)
       result(true)
   }
+
+  private func handleLoginCall(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    guard let callArguments = call.arguments as? [String: String], let token = callArguments["token"] else {
+      return result(FlutterError.init(code: Self.errorCode, message: "Expected String for token.", details: nil))
+    }
+    Apptentive.shared.logIn(with: token,
+        completion: { (completionResult) -> Void in
+              switch completionResult {
+              case .success:
+                  result(true)
+              case .failure(let error):
+                result(FlutterError.init(code: Self.errorCode, message: "Apptentive SDK failed to login.", details: error.localizedDescription))
+              }
+          })
+    result(true)
+  }
+
+  private func handleLogoutCall(_ result: @escaping FlutterResult) {
+    Apptentive.shared.logOut()
+    result(true)
+  }
+
 
   @objc func eventEngaged(notification: Notification) {
     guard let userInfo = notification.userInfo as? [String: String],

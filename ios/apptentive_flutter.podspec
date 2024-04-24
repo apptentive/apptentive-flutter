@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'apptentive_flutter'
-  s.version      = "6.2.2"
+  s.version      = "6.7.0"
   s.summary          = 'Apptentive SDK for Flutter'
   s.description      = <<-DESC
 Apptentive SDK for Flutter
@@ -12,7 +12,7 @@ Apptentive SDK for Flutter
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
-  s.dependency 'ApptentiveKit', '6.5.0'
+  s.dependency 'ApptentiveKit', '6.7.0'
   s.platform = :ios, '13.0'
 
   # Flutter.framework does not contain a i386 slice.
