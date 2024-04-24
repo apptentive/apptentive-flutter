@@ -1,3 +1,12 @@
+# 2024-04-24 - v6.7.0
+
+- Apptentive Android SDK: 6.7.0
+- Apptentive iOS SDK: 6.7.0
+
+#### Bugs Fixed:
+
+- Added missing implementation of `handleGetUnreadMessageCount` for iOS
+
 # 2023-11-17 - v6.2.2
 
 - Apptentive Android SDK: 6.5.0
