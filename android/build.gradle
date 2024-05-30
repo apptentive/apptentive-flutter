@@ -37,6 +37,6 @@ android {
 }
 
 dependencies {
-    implementation 'com.apptentive:apptentive-kit-android:6.7.0'
+    implementation 'com.apptentive:apptentive-kit-android:6.8.0'
     testImplementation 'junit:junit:4.13.2'
 }
