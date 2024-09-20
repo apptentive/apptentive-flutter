@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'apptentive_flutter'
-  s.version      = "6.8.0"
+  s.version      = "6.9.0"
   s.summary          = 'Apptentive SDK for Flutter'
   s.description      = <<-DESC
 Apptentive SDK for Flutter
