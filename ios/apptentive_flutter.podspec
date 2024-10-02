@@ -12,7 +12,7 @@ Apptentive SDK for Flutter
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
-  s.dependency 'ApptentiveKit', '6.8.1'
+  s.dependency 'ApptentiveKit', '6.9.0'
   s.platform = :ios, '13.0'
 
   # Flutter.framework does not contain a i386 slice.
