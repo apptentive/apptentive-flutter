@@ -1,7 +1,5 @@
 package com.apptentive.apptentive_flutter
 
-// TODO test push notifications
-
 import android.app.Activity
 import android.app.Application
 import apptentive.com.android.feedback.*
@@ -11,10 +9,15 @@ import apptentive.com.android.util.*
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.embedding.engine.plugins.lifecycle.HiddenLifecycleReference
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.DefaultLifecycleObserver;
 
 
 @OptIn(InternalUseOnly::class)
@@ -69,6 +72,14 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     if (isApptentiveRegistered) {
       Apptentive.registerApptentiveActivityInfoCallback(activityInfo)
     }
+    (binding.lifecycle as HiddenLifecycleReference)
+      .lifecycle
+      .addObserver(LifecycleEventObserver { source, event ->
+        Log.v(LogTag("Flutter"), event.toString())
+        if (event == Lifecycle.Event.ON_RESUME && isApptentiveRegistered) {
+          Apptentive.registerApptentiveActivityInfoCallback(activityInfo)
+        }
+      })
   }
 
   // When re-attached to activity, set current activity context and re-register Apptentive Activity Callback
