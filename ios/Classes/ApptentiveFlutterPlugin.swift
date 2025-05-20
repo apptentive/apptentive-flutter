@@ -8,6 +8,7 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
   private static let errorCode = "Apptentive Error"
   private var observation: NSKeyValueObservation?
   private let channel: FlutterMethodChannel
+  private var isSDKRegistered: Bool = false
 
   // Register the method channel and plugin instance
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -37,6 +38,7 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     case "sendAttachmentText": handleSendAttachmentTextCall(call, result)
     case "login": handleLoginCall(call, result)
     case "logout": handleLogoutCall(result)
+    case "isSDKRegistered": handleIsSDKRegisteredCall(result)
     default: result(FlutterMethodNotImplemented)
     }
   }
@@ -108,6 +110,7 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     Apptentive.shared.register(with: appCredentials, region:region, completion: { (completionResult) -> Void in
       switch completionResult {
       case .success:
+          self.isSDKRegistered = true
           result(true)
       case .failure(let error):
         result(FlutterError.init(code: Self.errorCode, message: "Apptentive SDK failed to register.", details: error.localizedDescription))
@@ -294,6 +297,9 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     result(true)
   }
 
+  private func handleIsSDKRegisteredCall(_ result: @escaping FlutterResult) {
+    result(self.isSDKRegistered)
+  }
 
   @objc func eventEngaged(notification: Notification) {
     guard let userInfo = notification.userInfo as? [String: String],
