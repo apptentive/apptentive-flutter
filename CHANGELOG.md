@@ -1,3 +1,8 @@
+# 2025-11-12 - v6.9.4
+
+- Apptentive Android SDK: 6.9.3
+- Apptentive iOS SDK: 6.9.2
+
 # 2025-03-20 - v6.9.3
 
 - Apptentive Android SDK: 6.9.3
