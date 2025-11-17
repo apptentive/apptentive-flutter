@@ -22,7 +22,7 @@ class ApptentiveConfiguration {
     this.shouldEncryptStorage = false,
     this.shouldSanitizeLogMessages = true,
     this.distributionName = "Flutter",
-    this.distributionVersion = "6.9.3",
+    this.distributionVersion = "6.9.4",
     this.ratingInteractionThrottleLength = 604800000, // 1 week
     this.customAppStoreURL,
     this.apiBaseURL
