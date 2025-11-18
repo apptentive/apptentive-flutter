@@ -14,6 +14,7 @@ class ApptentiveConfiguration {
   final String distributionVersion;
   final int ratingInteractionThrottleLength;
   final String? customAppStoreURL;
+  final String? apiBaseURL;
 
   ApptentiveConfiguration({required this.apptentiveKey, required this.apptentiveSignature,
     this.logLevel = LogLevel.info,
@@ -21,9 +22,10 @@ class ApptentiveConfiguration {
     this.shouldEncryptStorage = false,
     this.shouldSanitizeLogMessages = true,
     this.distributionName = "Flutter",
-    this.distributionVersion = "6.9.3",
+    this.distributionVersion = "6.9.4",
     this.ratingInteractionThrottleLength = 604800000, // 1 week
-    this.customAppStoreURL
+    this.customAppStoreURL,
+    this.apiBaseURL
   });
 }
 
@@ -240,7 +242,8 @@ class ApptentiveFlutter {
       "rating_interaction_throttle_length": configuration.ratingInteractionThrottleLength,
       "custom_app_store_url": configuration.customAppStoreURL,
       "distribution_name": configuration.distributionName,
-      "distribution_version": configuration.distributionVersion
+      "distribution_version": configuration.distributionVersion,
+      "api_base_url": configuration.apiBaseURL
     };
   }
 }

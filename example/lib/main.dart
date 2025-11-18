@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:apptentive_flutter/apptentive_flutter.dart';
+import 'credentials.dart';
 
 // import 'package:firebase_core/firebase_core.dart';
 // import 'package:firebase_messaging/firebase_messaging.dart';
@@ -46,11 +47,11 @@ class _MyAppState extends State<MyApp> {
     final String apptentiveKey;
     final String apptentiveSignature;
     if (Platform.isAndroid) {
-      apptentiveKey = "<YOUR_ANDROID_KEY>";
-      apptentiveSignature = "<YOUR_ANDROID_SIGNATURE>";
+      apptentiveKey = ApptentiveCredentials.androidKey;
+      apptentiveSignature = ApptentiveCredentials.androidSignature;
     } else if (Platform.isIOS) {
-      apptentiveKey = "<YOUR_IOS_KEY>";
-      apptentiveSignature = "<YOUR_IOS_SIGNATURE>";
+      apptentiveKey = ApptentiveCredentials.iOSKey;
+      apptentiveSignature = ApptentiveCredentials.iOSSignature;
     } else {
       String os = Platform.operatingSystem;
       print("E Apptentive: Platform not supported for Apptentive Flutter Plugin: ${os}. Apptentive failed to initialize.");

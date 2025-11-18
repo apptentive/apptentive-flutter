@@ -8,6 +8,7 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
   private static let errorCode = "Apptentive Error"
   private var observation: NSKeyValueObservation?
   private let channel: FlutterMethodChannel
+  private var isSDKRegistered: Bool = false
 
   // Register the method channel and plugin instance
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -37,6 +38,7 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     case "sendAttachmentText": handleSendAttachmentTextCall(call, result)
     case "login": handleLoginCall(call, result)
     case "logout": handleLogoutCall(result)
+    case "isSDKRegistered": handleIsSDKRegisteredCall(result)
     default: result(FlutterMethodNotImplemented)
     }
   }
@@ -97,20 +99,22 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     Apptentive.shared.distributionName = distributionName
     Apptentive.shared.distributionVersion = distributionVersion
 
-    guard let (logLevel, appCredentials) = self.unpackConfiguration(callArguments["configuration"]) else {
+    guard let (logLevel, appCredentials, apiBaseURL) = self.unpackConfiguration(callArguments["configuration"]) else {
       return result(FlutterError.init(code: Self.errorCode, message: "Missing or invalid app credentials (key/signature)", details: "Configuration is \(callArguments["configuration"] ?? "missing")"))
     }
 
     ApptentiveLogger.logLevel = logLevel
+    let region = apiBaseURL.flatMap { ApptentiveKit.Apptentive.Region(apiBaseURL: $0) } ?? .us
 
     // Register Apptentive using credentials
-    Apptentive.shared.register(with: appCredentials, completion: { (completionResult) -> Void in
-        switch completionResult {
-        case .success:
-            result(true)
-        case .failure(let error):
-          result(FlutterError.init(code: Self.errorCode, message: "Apptentive SDK failed to register.", details: error.localizedDescription))
-        }
+    Apptentive.shared.register(with: appCredentials, region:region, completion: { (completionResult) -> Void in
+      switch completionResult {
+      case .success:
+          self.isSDKRegistered = true
+          result(true)
+      case .failure(let error):
+        result(FlutterError.init(code: Self.errorCode, message: "Apptentive SDK failed to register.", details: error.localizedDescription))
+      }
     })
   }
 
@@ -293,6 +297,9 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     result(true)
   }
 
+  private func handleIsSDKRegisteredCall(_ result: @escaping FlutterResult) {
+    result(self.isSDKRegistered)
+  }
 
   @objc func eventEngaged(notification: Notification) {
     guard let userInfo = notification.userInfo as? [String: String],
@@ -341,7 +348,7 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     }
   }
 
-  private func unpackConfiguration(_ configuration: Any?) -> (LogLevel, Apptentive.AppCredentials)? {
+  private func unpackConfiguration(_ configuration: Any?) -> (LogLevel, Apptentive.AppCredentials, URL?)? {
     guard let configuration = configuration as? [String: Any],
           let key = configuration["key"] as? String,
           let signature = configuration["signature"] as? String
@@ -351,7 +358,8 @@ public class ApptentiveFlutterPlugin: NSObject, FlutterApplicationLifeCycleDeleg
     }
 
     let logLevel = configuration["log_level"] as? String
-    return (self.convertLogLevel(logLevel: logLevel), .init(key: key, signature: signature))
+    let apiBaseURL = (configuration["api_base_url"] as? String).flatMap { URL(string: $0) }
+    return (self.convertLogLevel(logLevel: logLevel), .init(key: key, signature: signature), apiBaseURL)
   }
 
   private func convertCustomDataArguments(_ callArguments: Any?) -> (String, CustomDataCompatible)? {
