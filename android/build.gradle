@@ -29,7 +29,7 @@ sourceSets {
 }
 
 android {
-    compileSdkVersion 34
+    compileSdkVersion 35
     namespace 'com.apptentive.apptentive_flutter'
     defaultConfig {
         minSdkVersion 21
