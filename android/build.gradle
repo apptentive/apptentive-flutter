@@ -32,7 +32,7 @@ android {
     compileSdkVersion 35
     namespace 'com.apptentive.apptentive_flutter'
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 24
     }
 }
 

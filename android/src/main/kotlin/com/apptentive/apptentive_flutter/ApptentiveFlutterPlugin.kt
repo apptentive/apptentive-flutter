@@ -485,6 +485,16 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     }
   }
 
+  private fun parseRegion(regionStr: String): ApptentiveRegion {
+    return when {
+      regionStr.contains("us") -> ApptentiveRegion.US
+      regionStr.contains("eu") -> ApptentiveRegion.EU
+      regionStr.contains("cn") -> ApptentiveRegion.CN
+      regionStr.contains("au") -> ApptentiveRegion.AU
+      else -> ApptentiveRegion.US
+    }
+  }
+
   // Turn a Map into an Apptentive Configuration
   @Suppress("UNCHECKED_CAST")
   private fun unpackConfiguration(configurationMap: Map<String, Any>): ApptentiveConfiguration {
@@ -498,6 +508,8 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     val customAppStoreURL = configurationMap["custom_app_store_url"] as String?
     val distributionName = configurationMap["distribution_name"] as String
     val distributionVersion = configurationMap["distribution_version"] as String
+    val customURL = configurationMap["apiBaseUrl"] as String?
+    val region = parseRegion(configurationMap["region"] as String)
 
     val configuration = ApptentiveConfiguration(key,signature)
 
@@ -509,7 +521,12 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     configuration.customAppStoreURL = customAppStoreURL
     configuration.distributionName = distributionName
     configuration.distributionVersion = distributionVersion
-
+    if (customURL != null) {
+      Log.w(LogTag("Flutter"), "apiBaseUrl is provided. setting custom base url")
+      configuration.region = ApptentiveRegion.Custom(customURL)
+    } else {
+      configuration.region = region
+    }
     return configuration
   }
 
