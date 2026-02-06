@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
+import 'package:meta/meta.dart';
 
 enum LogLevel { verbose, debug, info, warn, error }
+enum Region { us, eu, cn, au }
 
 class ApptentiveConfiguration {
   final String apptentiveKey;
@@ -14,6 +16,8 @@ class ApptentiveConfiguration {
   final String distributionVersion;
   final int ratingInteractionThrottleLength;
   final String? customAppStoreURL;
+  final Region region;
+  @internal
   final String? apiBaseURL;
 
   ApptentiveConfiguration({required this.apptentiveKey, required this.apptentiveSignature,
@@ -25,6 +29,7 @@ class ApptentiveConfiguration {
     this.distributionVersion = "7.0.0",
     this.ratingInteractionThrottleLength = 604800000, // 1 week
     this.customAppStoreURL,
+    this.region = Region.us,
     this.apiBaseURL
   });
 }
@@ -243,6 +248,7 @@ class ApptentiveFlutter {
       "custom_app_store_url": configuration.customAppStoreURL,
       "distribution_name": configuration.distributionName,
       "distribution_version": configuration.distributionVersion,
+      "region": configuration.region.toString(),
       "api_base_url": configuration.apiBaseURL
     };
   }
