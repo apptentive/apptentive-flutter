@@ -102,11 +102,11 @@ public class ApptentiveFlutterPlugin: NSObject, @preconcurrency FlutterApplicati
         Apptentive.shared.distributionName = distributionName
         Apptentive.shared.distributionVersion = distributionVersion
 
-        guard let (appCredentials, regionString, apiBaseURL, fontName) = self.unpackConfiguration(callArguments["configuration"]) else {
+        guard let (appCredentials, regionString, overrideBaseURL, fontName) = self.unpackConfiguration(callArguments["configuration"]) else {
             return result(FlutterError.init(code: Self.errorCode, message: "Missing or invalid app credentials (key/signature)", details: "Configuration is \(callArguments["configuration"] ?? "missing")"))
         }
 
-        let environment: Apptentive.Environment = apiBaseURL.flatMap { .custom($0) } ?? .production
+        let environment: Apptentive.Environment = overrideBaseURL.flatMap { .custom($0) } ?? .production
         let region = regionString.flatMap { ApptentiveKit.Apptentive.Region(rawValue: $0) } ?? .us
         Apptentive.fontName = fontName
 
@@ -342,9 +342,9 @@ public class ApptentiveFlutterPlugin: NSObject, @preconcurrency FlutterApplicati
         }
 
         let region = configuration["region"] as? String
-        let apiBaseURL = (configuration["api_base_url"] as? String).flatMap { URL(string: $0) }
+        let overrideBaseURL = (configuration["override_base_url"] as? String).flatMap { URL(string: $0) }
         let fontName = configuration["font_name"] as? String
-        return (.init(key: key, signature: signature), region, apiBaseURL, fontName)
+        return (.init(key: key, signature: signature), region, overrideBaseURL, fontName)
     }
 
     private func convertCustomDataArguments(_ callArguments: Any?) -> (String, CustomDataCompatible)? {

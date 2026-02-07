@@ -19,7 +19,7 @@ class ApptentiveConfiguration {
   final String? fontName;
   final Region region;
   @internal
-  final String? apiBaseURL;
+  final String? overrideBaseURL;
 
   ApptentiveConfiguration({required this.apptentiveKey, required this.apptentiveSignature,
     this.logLevel = LogLevel.info,
@@ -32,7 +32,7 @@ class ApptentiveConfiguration {
     this.customAppStoreURL,
     this.fontName,
     this.region = Region.us,
-    this.apiBaseURL
+    this.overrideBaseURL
   });
 }
 
@@ -252,7 +252,7 @@ class ApptentiveFlutter {
       "distribution_name": configuration.distributionName,
       "distribution_version": configuration.distributionVersion,
       "region": configuration.region.toString(),
-      "api_base_url": configuration.apiBaseURL
+      "override_base_url": configuration.overrideBaseURL
     };
   }
 }
