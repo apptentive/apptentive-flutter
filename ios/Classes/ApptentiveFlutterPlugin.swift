@@ -341,7 +341,7 @@ public class ApptentiveFlutterPlugin: NSObject, @preconcurrency FlutterApplicati
             return nil
         }
 
-        let region = configuration["region"] as? String
+        let region = (configuration["region"] as? String)?.components(separatedBy: ".").last
         let overrideBaseURL = (configuration["override_base_url"] as? String).flatMap { URL(string: $0) }
         let fontName = configuration["font_name"] as? String
         return (.init(key: key, signature: signature), region, overrideBaseURL, fontName)

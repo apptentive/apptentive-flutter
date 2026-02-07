@@ -64,6 +64,7 @@ class _MyAppState extends State<MyApp> {
         logLevel: LogLevel.verbose,
         shouldEncryptStorage: false,
         shouldSanitizeLogMessages: false,
+        region: ApptentiveCredentials.region
     );
     ApptentiveFlutter.surveyFinishedCallback = (bool completed) {
       print("Survey Finished?: $completed");
