@@ -16,9 +16,10 @@ class ApptentiveConfiguration {
   final String distributionVersion;
   final int ratingInteractionThrottleLength;
   final String? customAppStoreURL;
+  final String? fontName;
   final Region region;
   @internal
-  final String? apiBaseURL;
+  final String? overrideBaseURL;
 
   ApptentiveConfiguration({required this.apptentiveKey, required this.apptentiveSignature,
     this.logLevel = LogLevel.info,
@@ -29,8 +30,9 @@ class ApptentiveConfiguration {
     this.distributionVersion = "7.0.0",
     this.ratingInteractionThrottleLength = 604800000, // 1 week
     this.customAppStoreURL,
+    this.fontName,
     this.region = Region.us,
-    this.apiBaseURL
+    this.overrideBaseURL
   });
 }
 
@@ -246,10 +248,11 @@ class ApptentiveFlutter {
       "should_sanitize_log_messages": configuration.shouldSanitizeLogMessages,
       "rating_interaction_throttle_length": configuration.ratingInteractionThrottleLength,
       "custom_app_store_url": configuration.customAppStoreURL,
+      "font_name": configuration.fontName,
       "distribution_name": configuration.distributionName,
       "distribution_version": configuration.distributionVersion,
       "region": configuration.region.toString(),
-      "api_base_url": configuration.apiBaseURL
+      "override_base_url": configuration.overrideBaseURL
     };
   }
 }

@@ -508,7 +508,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     val customAppStoreURL = configurationMap["custom_app_store_url"] as String?
     val distributionName = configurationMap["distribution_name"] as String
     val distributionVersion = configurationMap["distribution_version"] as String
-    val customURL = configurationMap["apiBaseUrl"] as String?
+    val customURL = configurationMap["override_base_url"] as String?
     val region = parseRegion(configurationMap["region"] as String)
 
     val configuration = ApptentiveConfiguration(key,signature)
@@ -522,7 +522,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     configuration.distributionName = distributionName
     configuration.distributionVersion = distributionVersion
     if (customURL != null) {
-      Log.w(LogTag("Flutter"), "apiBaseUrl is provided. setting custom base url")
+      Log.w(LogTag("Flutter"), "overrideBaseUrl is provided. setting custom base url")
       configuration.region = ApptentiveRegion.Custom(customURL)
     } else {
       configuration.region = region
