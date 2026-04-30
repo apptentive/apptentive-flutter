@@ -489,7 +489,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     return when {
       regionStr.contains("us") -> ApptentiveRegion.US
       regionStr.contains("eu") -> ApptentiveRegion.EU
-      regionStr.contains("cn") -> ApptentiveRegion.CN
+      regionStr.contains("ca") -> ApptentiveRegion.CA
       regionStr.contains("au") -> ApptentiveRegion.AU
       else -> ApptentiveRegion.US
     }

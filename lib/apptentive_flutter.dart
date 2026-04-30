@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
 enum LogLevel { verbose, debug, info, warn, error }
-enum Region { us, eu, cn, au }
+enum Region { us, eu, ca, au }
 
 class ApptentiveConfiguration {
   final String apptentiveKey;
