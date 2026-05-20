@@ -1,3 +1,11 @@
+# 2026-05-20 - v7.1.0
+
+- Apptentive Android SDK: 7.1.1
+- Apptentive iOS SDK: 7.1.0
+
+### New & Improved
+- Allows routing traffic to region‑specific endpoints, reducing latency and comply with regional data‑handling requirements. Now supporting EU along with US
+
 # 2025-11-17 - v6.9.4
 
 - Apptentive Android SDK: 6.9.3
