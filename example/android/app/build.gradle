@@ -1,38 +1,36 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
 def localProperties = new Properties()
-def localPropertiesFile = rootProject.file('local.properties')
+def localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader('UTF-8') { reader ->
-        localProperties.load(reader)
-    }
+    localPropertiesFile.withReader("UTF-8") { reader -> localProperties.load(reader) }
 }
 
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-if (flutterRoot == null) {
-    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
-}
-
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
-
-apply plugin: 'com.android.application'
-//apply plugin: 'com.google.gms.google-services'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+def flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "1"
+def flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 
 android {
-    compileSdkVersion 35
+    namespace "com.apptentive.apptentive_flutter_example"
+    compileSdk 35
+    ndkVersion flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17
+    }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.apptentive.apptentive_flutter_example"
-        minSdkVersion 24
-        targetSdkVersion 35
+        minSdk 24
+        targetSdk 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
@@ -40,28 +38,11 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
         }
     }
-    namespace 'com.apptentive.apptentive_flutter_example'
-}
-
-configurations.all {
-    resolutionStrategy {
-        force 'androidx.lifecycle:lifecycle-runtime:2.7.0'
-        force 'androidx.lifecycle:lifecycle-common:2.7.0'
-        force 'androidx.lifecycle:lifecycle-livedata:2.7.0'
-        force 'androidx.lifecycle:lifecycle-viewmodel:2.7.0'
-    }
-}
-
-dependencies {
-    implementation 'com.android.support:multidex:1.0.3'
-//    implementation platform('com.google.firebase:firebase-bom:31.4.0')
 }
 
 flutter {
-    source '../..'
+    source "../.."
 }

@@ -1,18 +1,10 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
 group 'com.apptentive.apptentive_flutter'
 version '1.0'
-
-buildscript {
-    ext.kotlin_version = '1.7.21'
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
 
 rootProject.allprojects {
     repositories {
@@ -21,18 +13,26 @@ rootProject.allprojects {
     }
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-
-sourceSets {
-  main.java.srcDirs += 'src/main/kotlin'
-}
-
 android {
-    compileSdkVersion 35
-    namespace 'com.apptentive.apptentive_flutter'
+    compileSdk 35
+    namespace = 'com.apptentive.apptentive_flutter'
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17
+        freeCompilerArgs += ['-opt-in=apptentive.com.android.core.InternalUseOnly']
+    }
+
     defaultConfig {
-        minSdkVersion 24
+        minSdk 24
     }
 }
 
