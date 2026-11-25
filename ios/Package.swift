@@ -11,7 +11,7 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "FlutterFramework", path: "../FlutterFramework"),
-        .package(url: "https://github.com/apptentive/apptentive-kit-ios", from: "7.1.0"),
+        .package(url: "https://github.com/apptentive/apptentive-kit-ios", from: "7.4.0"),
     ],
     targets: [
         .target(

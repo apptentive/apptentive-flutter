@@ -23,3 +23,12 @@ fi
 sed -i "s/s.dependency '$dependency_name', '[^']*'/s.dependency '$dependency_name', '$new_version'/" "$podspec_file"
 
 echo "Updated $dependency_name to version $new_version in $podspec_file."
+
+# Also update the Swift Package Manager manifest, if present next to the podspec.
+package_swift_file="$(dirname "$podspec_file")/Package.swift"
+
+if [ -f "$package_swift_file" ]; then
+    sed -i "s|\(\.package(url: \"https://github.com/apptentive/apptentive-kit-ios\", from: \"\)[^\"]*\"|\1$new_version\"|" "$package_swift_file"
+
+    echo "Updated $dependency_name to version $new_version in $package_swift_file."
+fi
