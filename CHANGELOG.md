@@ -1,3 +1,8 @@
+# 2026-11-25 - v7.4.0
+
+- Apptentive Android SDK: 7.4.0
+- Apptentive iOS SDK: 7.4.0
+
 # 2026-05-20 - v7.1.0
 
 - Apptentive Android SDK: 7.1.1
