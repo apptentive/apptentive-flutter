@@ -18,6 +18,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.DefaultLifecycleObserver;
+import apptentive.com.android.core.InternalUseOnly
 
 
 @OptIn(InternalUseOnly::class)
@@ -384,7 +385,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
     val interactionId = notification?.interactionId
     val notificationText = "Name: \"$name\". Vendor: \"$vendor\". " +
             "Interaction: \"$interaction\". Interaction ID: $interactionId"
-    Log.d(LogTags.EVENT_NOTIFICATION, notificationText)
+    Log.d(LogTag("EventNotification"), notificationText)
     when {
       interaction == "Survey" && name == "submit" ->
         activity?.runOnUiThread {
@@ -458,7 +459,7 @@ class ApptentiveFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware 
               "Person Name: ${notification?.personName}. " +
               "Person Email: ${notification?.personEmail}"
 
-    Log.d(LogTags.MESSAGE_CENTER_NOTIFICATION, notificationText)
+    Log.d(LogTag("MessageCenter"), notificationText)
     if (notification?.unreadMessageCount != 0) {
       activity?.runOnUiThread {
         channel.invokeMethod("onUnreadMessageCountChanged", mapOf("count" to notification?.unreadMessageCount))
